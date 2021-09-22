@@ -1,29 +1,10 @@
-buildscript {
-    repositories {
-        mavenCentral()
-        maven {
-            name = "forge"
-            url = "https://maven.minecraftforge.net/"
-        }
-        maven {
-            name = "sonatype"
-            url = "https://oss.sonatype.org/content/repositories/snapshots/"
-        }
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.+', changing: true
-    }
-}
 plugins {
+    id 'fabric-loom' version '0.9-SNAPSHOT'
     id "io.freefair.lombok" version "6.1.0-m3"
     id 'com.matthewprenger.cursegradle' version '1.4.0'
     id 'org.ajoberstar.grgit' version '4.1.0'
+    id 'maven-publish'
 }
-
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'maven-publish'
-apply plugin: 'eclipse'
-apply from: 'https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle'
 
 boolean dev = System.getenv('RELEASE') == null || System.getenv('RELEASE').equals('false')
 def getVersion = {
@@ -38,74 +19,17 @@ version = "MC${minecraft_version}-${getVersion()}"
 group = "com.tterrag.registrate"
 archivesBaseName = "Registrate"
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(16)
-
-minecraft {
-    mappings channel: 'official', version: minecraft_version
-
-    runs {
-        client {
-            taskName 'testmod_client'
-            
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-
-            mods {
-                testmod {
-                    source sourceSets.test
-                    source sourceSets.main
-                }
-            }
-        }
-        server {
-            taskName 'testmod_server'
-            
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-
-            mods {
-                testmod {
-                    source sourceSets.test
-                    source sourceSets.main
-                }
-            }
-        }
-        data {
-            taskName 'testmod_data'
-        
-            workingDirectory project.file('run')
-            
-            environment 'target', 'fmluserdevdata'
-
-            property 'forge.logging.markers', 'REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-
-            mods {
-                testmod {
-                    source sourceSets.test
-                    source sourceSets.main
-                }
-            }
-            
-            args '--mod', 'testmod', '--all', '--output', rootProject.file('src/generated/resources/'), '--existing', rootProject.file('src/test/resources') 
-        }
-    }
-}
-
-sourceSets.main.resources {
-    srcDir 'src/generated/resources'
-}
+sourceCompatibility = JavaVersion.VERSION_16
+targetCompatibility = JavaVersion.VERSION_16
 
 dependencies {
     implementation group: 'javax.annotation', name: 'javax.annotation-api', version: '1.3.2'
 
-    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-    testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.2"
-    testRuntimeOnly    "org.junit.jupiter:junit-jupiter-engine:5.7.2"
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings minecraft.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:0.11.7"
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.0'
 }
 
 lombok {
@@ -118,6 +42,10 @@ delombok {
         'suppressWarnings': 'skip',
         'javaLangAsFQN': 'skip'
     ]
+}
+
+java {
+    withSourcesJar()
 }
 
 jar {
