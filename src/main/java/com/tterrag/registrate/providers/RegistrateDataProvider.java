@@ -15,6 +15,7 @@ import com.tterrag.registrate.util.DebugMarkers;
 import com.tterrag.registrate.util.nullness.NonnullType;
 
 import lombok.extern.log4j.Log4j2;
+import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.HashCache;
 
@@ -28,7 +29,7 @@ public class RegistrateDataProvider implements DataProvider {
 
     @SuppressWarnings("null")
     static final BiMap<String, ProviderType<?>> TYPES = HashBiMap.create();
-    
+
     public static @Nullable String getTypeName(ProviderType<?> type) {
         return TYPES.inverse().get(type);
     }
@@ -47,7 +48,7 @@ public class RegistrateDataProvider implements DataProvider {
 //        if (event.includeClient()) {
             sides.add(EnvType.CLIENT);
 //        }
-        
+
         log.debug(DebugMarkers.DATA, "Gathering providers for sides: {}", sides);
         Map<ProviderType<?>, RegistrateProvider> known = new HashMap<>();
         for (String id : TYPES.keySet()) {
@@ -62,7 +63,7 @@ public class RegistrateDataProvider implements DataProvider {
     }
 
     @Override
-    public void run(HashCache cache) throws IOException {
+    public void run(CachedOutput cache) throws IOException {
         for (Map.Entry<@NonnullType ProviderType<?>, RegistrateProvider> e : subProviders.entrySet()) {
             log.debug(DebugMarkers.DATA, "Generating data for type: {}", getTypeName(e.getKey()));
             e.getValue().run(cache);

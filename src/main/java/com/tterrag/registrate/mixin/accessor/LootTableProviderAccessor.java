@@ -1,6 +1,7 @@
 package com.tterrag.registrate.mixin.accessor;
 
-import com.google.gson.Gson;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
+
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
@@ -13,21 +14,12 @@ import net.minecraft.resources.ResourceLocation;
 
 @Mixin(LootTableProvider.class)
 public interface LootTableProviderAccessor {
-    @Accessor
-    static Gson getGSON() {
-        throw new UnsupportedOperationException();
-    }
 
     @Accessor
     static Logger getLOGGER() {
         throw new UnsupportedOperationException();
     }
 
-    @Invoker
-    static Path callCreatePath(Path path, ResourceLocation resourceLocation) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Accessor
-    DataGenerator getGenerator();
+    @Accessor("pathProvider")
+	DataGenerator.PathProvider getPathProvider();
 }

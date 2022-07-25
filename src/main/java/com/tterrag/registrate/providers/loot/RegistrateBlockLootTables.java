@@ -6,10 +6,9 @@ import java.util.stream.Collectors;
 
 import com.tterrag.registrate.AbstractRegistrate;
 
-import lombok.RequiredArgsConstructor;
 import net.minecraft.core.Registry;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricBlockLootTablesProvider;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricBlockLootTableProvider;
 
 import net.minecraft.data.loot.BlockLoot;
 import net.minecraft.world.item.Item;
@@ -23,15 +22,18 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 
 //@RequiredArgsConstructor
-public class RegistrateBlockLootTables extends FabricBlockLootTablesProvider implements RegistrateLootTables {
-    
+public class RegistrateBlockLootTables extends FabricBlockLootTableProvider implements RegistrateLootTables {
+
     private final AbstractRegistrate<?> parent;
     private final Consumer<RegistrateBlockLootTables> callback;
+
+	private final FabricDataGenerator dataGenerator;
 
     public RegistrateBlockLootTables(AbstractRegistrate<?> parent, Consumer<RegistrateBlockLootTables> callback, FabricDataGenerator dataGenerator) {
         super(dataGenerator);
         this.parent = parent;
         this.callback = callback;
+		this.dataGenerator = dataGenerator;
     }
 
     @Override
@@ -46,10 +48,6 @@ public class RegistrateBlockLootTables extends FabricBlockLootTablesProvider imp
 
     // @formatter:off
     // GENERATED START
-
-    public static <T> T applyExplosionDecay(ItemLike p_124132_, FunctionUserBuilder<T> p_124133_) { return BlockLoot.applyExplosionDecay(p_124132_, p_124133_); }
-
-    public static <T> T applyExplosionCondition(ItemLike p_124135_, ConditionUserBuilder<T> p_124136_) { return BlockLoot.applyExplosionCondition(p_124135_, p_124136_); }
 
     public static LootTable.Builder createSingleItemTable(ItemLike p_124127_) { return BlockLoot.createSingleItemTable(p_124127_); }
 
@@ -103,7 +101,7 @@ public class RegistrateBlockLootTables extends FabricBlockLootTablesProvider imp
 
     public static LootTable.Builder createShearsOnlyDrop(ItemLike p_124287_) { return BlockLoot.createShearsOnlyDrop(p_124287_); }
 
-    public static LootTable.Builder createGlowLichenDrops(Block p_176055_) { return BlockLoot.createGlowLichenDrops(p_176055_); }
+    public static LootTable.Builder createGlowLichenDrops(Block p_176055_) { return BlockLoot.createCaveVinesDrop(p_176055_); }
 
     public static LootTable.Builder createLeavesDrops(Block p_124158_, Block p_124159_, float... p_124160_) { return BlockLoot.createLeavesDrops(p_124158_, p_124159_, p_124160_); }
 

@@ -35,8 +35,8 @@ dependencies {
 
     modImplementation(include("me.alphamode:ForgeTags:2.1"))
 
-    implementation(include("com.github.LlamaLad7:MixinExtras:0.0.11"))
-    annotationProcessor("com.github.LlamaLad7:MixinExtras:0.0.11")
+    implementation(include("com.github.LlamaLad7:MixinExtras:0.0.12"))
+    annotationProcessor("com.github.LlamaLad7:MixinExtras:0.0.12")
 
     compileOnly 'org.projectlombok:lombok:1.18.22'
 }

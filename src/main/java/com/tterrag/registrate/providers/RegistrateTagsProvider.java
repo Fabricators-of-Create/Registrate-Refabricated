@@ -6,7 +6,8 @@ import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 
 import net.minecraft.core.Registry;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.BiomeTags;
+import net.minecraft.tags.TagBuilder;
 import net.minecraft.tags.TagKey;
 import net.minecraft.tags.TagKey;
 
@@ -16,7 +17,7 @@ public class RegistrateTagsProvider<T> extends FabricTagProvider<T> implements R
     private final ProviderType<? extends RegistrateTagsProvider<T>> type;
 
     public RegistrateTagsProvider(AbstractRegistrate<?> owner, ProviderType<? extends RegistrateTagsProvider<T>> type, String name, FabricDataGenerator generatorIn, Registry<T> registryIn) {
-        super(generatorIn, registryIn, name, "Tags (" + name + ")");
+        super(generatorIn, registryIn);
         this.owner = owner;
         this.type = type;
     }
@@ -35,5 +36,5 @@ public class RegistrateTagsProvider<T> extends FabricTagProvider<T> implements R
     public TagAppender<T> tag(TagKey<T> tag) { return super.tag(tag); }
 
     @Override
-    public Tag.Builder getOrCreateRawBuilder(TagKey<T> tag) { return super.getOrCreateRawBuilder(tag); }
+    public TagBuilder getOrCreateRawBuilder(TagKey<T> tag) { return super.getOrCreateRawBuilder(tag); }
 }

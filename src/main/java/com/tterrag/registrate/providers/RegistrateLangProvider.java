@@ -8,6 +8,10 @@ import java.util.stream.Collectors;
 
 import com.tterrag.registrate.fabric.LanguageProvider;
 import net.fabricmc.api.EnvType;
+import net.minecraft.data.CachedOutput;
+
+import net.minecraft.network.chat.contents.TranslatableContents;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.tterrag.registrate.AbstractRegistrate;
@@ -18,7 +22,6 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.core.Registry;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.HashCache;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -29,7 +32,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.Fluid;
 
 public class RegistrateLangProvider extends LanguageProvider implements RegistrateProvider {
-    
+
     private static class AccessibleLanguageProvider extends LanguageProvider {
 
         public AccessibleLanguageProvider(DataGenerator gen, String modid, String locale) {
@@ -44,9 +47,9 @@ public class RegistrateLangProvider extends LanguageProvider implements Registra
         @Override
         protected void addTranslations() {}
     }
-    
+
     private final AbstractRegistrate<?> owner;
-    
+
     private final AccessibleLanguageProvider upsideDown;
 
     public RegistrateLangProvider(AbstractRegistrate<?> owner, DataGenerator gen) {
@@ -59,7 +62,7 @@ public class RegistrateLangProvider extends LanguageProvider implements Registra
     public EnvType getSide() {
         return EnvType.CLIENT;
     }
-    
+
     @Override
     public String getName() {
         return "Lang (en_us/en_ud)";
@@ -69,13 +72,13 @@ public class RegistrateLangProvider extends LanguageProvider implements Registra
     protected void addTranslations() {
         owner.genData(ProviderType.LANG, this);
     }
-    
+
     public static final String toEnglishName(String internalName) {
         return Arrays.stream(internalName.toLowerCase(Locale.ROOT).split("_"))
                 .map(StringUtils::capitalize)
                 .collect(Collectors.joining(" "));
     }
-    
+
     public String getAutomaticName(NonNullSupplier<?> sup) {
         if(sup.get() instanceof Block block)
             return RegistrateLangProvider.toEnglishName(Registry.BLOCK.getKey(block).getPath());
@@ -126,7 +129,7 @@ public class RegistrateLangProvider extends LanguageProvider implements Registra
     }
 
     public void add(CreativeModeTab tab, String name) {
-        add(((TranslatableComponent)tab.getDisplayName()).getKey(), name);
+        add(((TranslatableContents)tab.getDisplayName()).getKey(), name);
     }
 
     public void addEntityType(NonNullSupplier<? extends EntityType<?>> entity) {
@@ -185,8 +188,7 @@ public class RegistrateLangProvider extends LanguageProvider implements Registra
     }
 
     @Override
-    public void run(HashCache cache) throws IOException {
-        super.run(cache);
+    public void run(CachedOutput cache) throws IOException {
         upsideDown.run(cache);
     }
 }

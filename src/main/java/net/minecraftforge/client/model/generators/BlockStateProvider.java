@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import net.minecraft.data.CachedOutput;
+
 import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.core.Registry;
@@ -96,14 +98,23 @@ public abstract class BlockStateProvider implements DataProvider {
         this.modid = modid;
         this.blockModels = new BlockModelProvider(gen, modid, exFileHelper) {
             @Override protected void registerModels() {}
-        };
+
+			@Override
+			public void run(CachedOutput cache) throws IOException {
+				super.run(cache);
+			}
+		};
         this.itemModels = new ItemModelProvider(gen, modid, this.blockModels.existingFileHelper) {
             @Override protected void registerModels() {}
+			@Override
+			public void run(CachedOutput cache) throws IOException {
+				super.run(cache);
+			}
         };
     }
 
     @Override
-    public void run(HashCache cache) throws IOException {
+    public void run(CachedOutput cache) throws IOException {
         models().clear();
         itemModels().clear();
         registeredBlocks.clear();
@@ -425,7 +436,7 @@ public abstract class BlockStateProvider implements DataProvider {
     private void wallBlockInternal(WallBlock block, String baseName, ResourceLocation texture) {
         wallBlock(block, models().wallPost(baseName + "_post", texture), models().wallSide(baseName + "_side", texture), models().wallSideTall(baseName + "_side_tall", texture));
     }
-    
+
     public static final ImmutableMap<Direction, Property<WallSide>> WALL_PROPS = ImmutableMap.<Direction, Property<WallSide>>builder()
     		.put(Direction.EAST,  BlockStateProperties.EAST_WALL)
     		.put(Direction.NORTH, BlockStateProperties.NORTH_WALL)
@@ -444,7 +455,7 @@ public abstract class BlockStateProvider implements DataProvider {
         		wallSidePart(builder, sideTall, e, WallSide.TALL);
         	});
     }
-    
+
     private void wallSidePart(MultiPartBlockStateBuilder builder, ModelFile model, Map.Entry<Direction, Property<WallSide>> entry, WallSide height) {
         builder.part()
         	.modelFile(model)
@@ -556,13 +567,13 @@ public abstract class BlockStateProvider implements DataProvider {
         }, TrapDoorBlock.POWERED, TrapDoorBlock.WATERLOGGED);
     }
 
-    private void saveBlockState(HashCache cache, JsonObject stateJson, Block owner) {
+    private void saveBlockState(CachedOutput cache, JsonObject stateJson, Block owner) {
         ResourceLocation blockName = Preconditions.checkNotNull(getRegistryName(owner));
         Path mainOutput = generator.getOutputFolder();
         String pathSuffix = "assets/" + blockName.getNamespace() + "/blockstates/" + blockName.getPath() + ".json";
         Path outputPath = mainOutput.resolve(pathSuffix);
         try {
-            DataProvider.save(GSON, cache, stateJson, outputPath);
+            DataProvider.saveStable(cache, stateJson, outputPath);
         } catch (IOException e) {
             LOGGER.error("Couldn't save blockstate to {}", outputPath, e);
         }

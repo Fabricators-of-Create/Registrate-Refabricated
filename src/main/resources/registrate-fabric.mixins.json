@@ -6,6 +6,7 @@
   "mixins": [
     "EntityLootMixin",
     "FluidMixin",
+    "LootTableProviderMixin",
     "accessor.BlockEntityRenderersAccessor",
     "accessor.FluidBlockAccessor",
     "accessor.LootContextParamSetsAccessor",

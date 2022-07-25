@@ -36,7 +36,6 @@ import net.minecraft.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.tags.Tag;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -51,7 +50,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * A builder for fluids, allows for customization of the {@link SimpleFlowableFluid.Properties} and {@link FluidData.FluidAttributes}, and creation of the source variant, fluid block, and bucket item, as well as
  * data associated with fluids (tags, etc.).
- * 
+ *
  * @param <T>
  *            The type of fluid being built
  * @param <P>
@@ -92,7 +91,7 @@ public class FluidBuilder<T extends SimpleFlowableFluid, P> extends AbstractBuil
 
     /**
      * Create a new {@link FluidBuilder} and configure data. The created builder will use the default fluid class ({@link SimpleFlowableFluid.Flowing}).
-     * 
+     *
      * @param <P>
      *            Parent object type
      * @param owner
@@ -116,7 +115,7 @@ public class FluidBuilder<T extends SimpleFlowableFluid, P> extends AbstractBuil
             @Nullable NonNullBiFunction<FluidAttributes.Builder, Fluid, FluidAttributes> attributesFactory*/) {
         return create(owner, parent, name, callback, stillTexture, flowingTexture/*, attributesFactory*/, SimpleFlowableFluid.Flowing::new);
     }
-    
+
 //    /**
 //     * Create a new {@link FluidBuilder} and configure data. The created builder will use the default attributes class ({@link FluidAttributes}).
 //     *
@@ -145,7 +144,7 @@ public class FluidBuilder<T extends SimpleFlowableFluid, P> extends AbstractBuil
 //            NonNullFunction<SimpleFlowableFluid.Properties, T> factory) {
 //        return create(owner, parent, name, callback, stillTexture, flowingTexture, null, factory);
 //    }
-    
+
     /**
      * Create a new {@link FluidBuilder} and configure data. Used in lieu of adding side-effects to constructor, so that alternate initialization strategies can be done in subclasses.
      * <p>
@@ -157,7 +156,7 @@ public class FluidBuilder<T extends SimpleFlowableFluid, P> extends AbstractBuil
      * <li>A default bucket item, that uses a simple generated item model with a texture of the same name as this fluid (via {@link #defaultBucket()})</li>
      * <li>Tagged with {@link FluidTags#WATER}</li>
      * </ul>
-     * 
+     *
      * @param <T>
      *            The type of the builder
      * @param <P>
@@ -215,12 +214,12 @@ public class FluidBuilder<T extends SimpleFlowableFluid, P> extends AbstractBuil
         this.attributes = FluidData.Builder::new;
 //        this.attributes = () -> attributesFactory == null ? FluidAttributes.builder(stillTexture, flowingTexture) : new Builder(stillTexture, flowingTexture, attributesFactory);
         this.factory = factory;
-        
+
         String bucketName = this.bucketName;
         this.properties = p -> p.bucket(() -> owner.get(bucketName, Registry.ITEM_REGISTRY).get())
                 .block(() -> owner.<Block, LiquidBlock>get(name, Registry.BLOCK_REGISTRY).get());
     }
-    
+
     /**
      * Modify the attributes of the fluid. Modifications are done lazily, but the passed function is composed with the current one, and as such this method can be called multiple times to perform
      * different operations.
@@ -233,7 +232,7 @@ public class FluidBuilder<T extends SimpleFlowableFluid, P> extends AbstractBuil
         attributesCallback = attributesCallback.andThen(cons);
         return this;
     }
-    
+
     /**
      * Modify the properties of the fluid. Modifications are done lazily, but the passed function is composed with the current one, and as such this method can be called multiple times to perform
      * different operations.
@@ -250,7 +249,7 @@ public class FluidBuilder<T extends SimpleFlowableFluid, P> extends AbstractBuil
     /**
      * Assign the default translation, as specified by {@link RegistrateLangProvider#getAutomaticName(NonNullSupplier)}. This is the default, so it is generally not necessary to call, unless for
      * undoing previous changes.
-     * 
+     *
      * @return this {@link FluidBuilder}
      */
     public FluidBuilder<T, P> defaultLang() {
@@ -259,7 +258,7 @@ public class FluidBuilder<T extends SimpleFlowableFluid, P> extends AbstractBuil
 
     /**
      * Set the translation for this fluid.
-     * 
+     *
      * @param name
      *            A localized English name
      * @return this {@link FluidBuilder}
@@ -270,7 +269,7 @@ public class FluidBuilder<T extends SimpleFlowableFluid, P> extends AbstractBuil
 
     /**
      * Create a standard {@link SimpleFlowableFluid.Still} for this fluid which will be built and registered along with this fluid.
-     * 
+     *
      * @return this {@link FluidBuilder}
      * @see #source(NonNullFunction)
      * @throws IllegalStateException
@@ -286,7 +285,7 @@ public class FluidBuilder<T extends SimpleFlowableFluid, P> extends AbstractBuil
 
     /**
      * Create a {@link SimpleFlowableFluid} for this fluid, which is created by the given factory, and which will be built and registered along with this fluid.
-     * 
+     *
      * @param factory
      *            A factory for the fluid, which accepts the properties and returns a new fluid
      * @return this {@link FluidBuilder}
@@ -299,7 +298,7 @@ public class FluidBuilder<T extends SimpleFlowableFluid, P> extends AbstractBuil
 
     /**
      * Create a standard {@link LiquidBlock} for this fluid, building it immediately, and not allowing for further configuration.
-     * 
+     *
      * @return this {@link FluidBuilder}
      * @see #block()
      * @throws IllegalStateException
@@ -315,7 +314,7 @@ public class FluidBuilder<T extends SimpleFlowableFluid, P> extends AbstractBuil
 
     /**
      * Create a standard {@link LiquidBlock} for this fluid, and return the builder for it so that further customization can be done.
-     * 
+     *
      * @return the {@link BlockBuilder} for the {@link LiquidBlock}
      */
     public BlockBuilder<LiquidBlock, FluidBuilder<T, P>> block() {
@@ -324,7 +323,7 @@ public class FluidBuilder<T extends SimpleFlowableFluid, P> extends AbstractBuil
 
     /**
      * Create a {@link LiquidBlock} for this fluid, which is created by the given factory, and return the builder for it so that further customization can be done.
-     * 
+     *
      * @param <B>
      *            The type of the block
      * @param factory
@@ -338,7 +337,7 @@ public class FluidBuilder<T extends SimpleFlowableFluid, P> extends AbstractBuil
         this.defaultBlock = false;
         NonNullSupplier<T> supplier = asSupplier();
         return getOwner().<B, FluidBuilder<T, P>>block(this, sourceName, p -> factory.apply(supplier, p))
-                .properties(p -> BlockBehaviour.Properties.copy(Blocks.WATER).noDrops())
+                .properties(p -> BlockBehaviour.Properties.copy(Blocks.WATER).dropsLike(Blocks.AIR))
 //                .properties(p -> {
 //                    // TODO is this ok?
 //                    FluidAttributes attrs = this.attributes.get().build(Fluids.WATER);
@@ -365,7 +364,7 @@ public class FluidBuilder<T extends SimpleFlowableFluid, P> extends AbstractBuil
 
     /**
      * Create a standard {@link BucketItem} for this fluid, building it immediately, and not allowing for further configuration.
-     * 
+     *
      * @return this {@link FluidBuilder}
      * @see #bucket()
      * @throws IllegalStateException
@@ -381,7 +380,7 @@ public class FluidBuilder<T extends SimpleFlowableFluid, P> extends AbstractBuil
 
     /**
      * Create a standard {@link BucketItem} for this fluid, and return the builder for it so that further customization can be done.
-     * 
+     *
      * @return the {@link ItemBuilder} for the {@link BucketItem}
      */
     public ItemBuilder<BucketItem, FluidBuilder<T, P>> bucket() {
@@ -390,7 +389,7 @@ public class FluidBuilder<T extends SimpleFlowableFluid, P> extends AbstractBuil
 
     /**
      * Create a {@link BucketItem} for this fluid, which is created by the given factory, and return the builder for it so that further customization can be done.
-     * 
+     *
      * @param <I>
      *            The type of the bucket item
      * @param factory
@@ -422,7 +421,7 @@ public class FluidBuilder<T extends SimpleFlowableFluid, P> extends AbstractBuil
 
     /**
      * Assign {@link TagKey}{@code s} to this fluid and its source fluid. Multiple calls will add additional tags.
-     * 
+     *
      * @param tags
      *            The tags to assign
      * @return this {@link FluidBuilder}
@@ -440,7 +439,7 @@ public class FluidBuilder<T extends SimpleFlowableFluid, P> extends AbstractBuil
 
     /**
      * Remove {@link TagKey}{@code s} from this fluid and its source fluid. Multiple calls will remove additional tags.
-     * 
+     *
      * @param tags
      *            The tags to remove
      * @return this {@link FluidBuilder}
@@ -456,7 +455,7 @@ public class FluidBuilder<T extends SimpleFlowableFluid, P> extends AbstractBuil
         Preconditions.checkNotNull(source, "Fluid has no source block: " + sourceName);
         return source.get();
     }
-    
+
     private SimpleFlowableFluid.Properties makeProperties() {
         FluidData.Builder attributes = this.attributes.get();
         RegistryEntry<Block> block = getOwner().getOptional(sourceName, Registry.BLOCK_REGISTRY);

@@ -9,6 +9,8 @@ import java.util.Objects;
 import java.util.TreeMap;
 import java.util.function.Supplier;
 
+import net.minecraft.data.CachedOutput;
+
 import org.apache.commons.lang3.text.translate.JavaUnicodeEscaper;
 
 import com.google.gson.Gson;
@@ -41,10 +43,10 @@ public abstract class LanguageProvider implements DataProvider {
     protected abstract void addTranslations();
 
     @Override
-    public void run(HashCache cache) throws IOException {
+    public void run(CachedOutput cache) throws IOException {
         addTranslations();
         if (!data.isEmpty())
-            save(cache, data, this.gen.getOutputFolder().resolve("assets/" + modid + "/lang/" + locale + ".json"));
+            save(data, this.gen.getOutputFolder().resolve("assets/" + modid + "/lang/" + locale + ".json"));
     }
 
     @Override
@@ -52,19 +54,16 @@ public abstract class LanguageProvider implements DataProvider {
         return "Languages: " + locale;
     }
 
-    private void save(HashCache cache, Object object, Path target) throws IOException {
+    private void save( Object object, Path target) throws IOException {
         String data = GSON.toJson(object);
         data = JavaUnicodeEscaper.outsideOf(0, 0x7f).translate(data); // Escape unicode after the fact so that it's not double escaped by GSON
-        String hash = DataProvider.SHA1.hashUnencodedChars(data).toString();
-        if (!Objects.equals(cache.getHash(target), hash) || !Files.exists(target)) {
+        if (!Files.exists(target)) {
             Files.createDirectories(target.getParent());
 
             try (BufferedWriter bufferedwriter = Files.newBufferedWriter(target)) {
                 bufferedwriter.write(data);
             }
         }
-
-        cache.putNew(target, hash);
     }
 
     public void addBlock(Supplier<? extends Block> key, String name) {
