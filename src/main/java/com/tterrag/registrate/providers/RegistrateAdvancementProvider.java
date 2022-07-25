@@ -16,6 +16,8 @@ import net.minecraft.advancements.Advancement;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
 
@@ -41,11 +43,11 @@ public class RegistrateAdvancementProvider implements RegistrateProvider, Consum
         return EnvType.SERVER;
     }
 
-    public TranslatableContents title(String category, String name, String title) {
+    public MutableComponent title(String category, String name, String title) {
         return owner.addLang("advancements", new ResourceLocation(category, name), "title", title);
     }
 
-    public TranslatableContents desc(String category, String name, String desc) {
+    public MutableComponent desc(String category, String name, String desc) {
         return owner.addLang("advancements", new ResourceLocation(category, name), "description", desc);
     }
 

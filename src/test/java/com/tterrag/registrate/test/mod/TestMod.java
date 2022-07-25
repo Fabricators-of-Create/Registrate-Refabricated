@@ -95,7 +95,7 @@ public class TestMod implements ModInitializer {
             Advancement.Builder.advancement()
                     .addCriterion("has_egg", InventoryChangeTrigger.TriggerInstance.hasItems(Items.EGG))
                     .display(Items.EGG.getDefaultInstance(),
-							MutableComponent.create(adv.title(registrate.getModid(), "root", "Test Advancement")), MutableComponent.create(adv.desc(registrate.getModid(), "root", "Get an egg.")),
+							adv.title(registrate.getModid(), "root", "Test Advancement"), adv.desc(registrate.getModid(), "root", "Get an egg."),
                             new ResourceLocation("textures/gui/advancements/backgrounds/stone.png"), FrameType.TASK, true, true, false)
                     .save(adv, registrate.getModid() + ":root");
         });

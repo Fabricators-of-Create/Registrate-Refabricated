@@ -4,6 +4,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.*;
+import com.mojang.datafixers.kinds.IdF;
 import com.tterrag.registrate.builders.*;
 import com.tterrag.registrate.builders.BlockEntityBuilder.BlockEntityFactory;
 import com.tterrag.registrate.builders.EnchantmentBuilder.EnchantmentFactory;
@@ -31,6 +32,8 @@ import net.minecraft.Util;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.core.Registry;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -603,13 +606,13 @@ public abstract class AbstractRegistrate<S extends AbstractRegistrate<S>> {
      *            The translation key
      * @param value
      *            The (English) translation value
-     * @return A {@link TranslatableComponent} representing the translated text
+     * @return A {@link MutableComponent} representing the translated text
      */
     @Deprecated
-    public TranslatableContents addLang(String key, String value) {
+    public MutableComponent addLang(String key, String value) {
         final String prefixedKey = getModid() + "." + key;
         addDataGenerator(ProviderType.LANG, p -> p.add(prefixedKey, value));
-        return new TranslatableContents(prefixedKey);
+        return Component.translatable(prefixedKey);
     }
 
     /**
@@ -623,7 +626,7 @@ public abstract class AbstractRegistrate<S extends AbstractRegistrate<S>> {
      *            (English) translation value
      * @return A {@link TranslatableContents} representing the translated text
      */
-    public TranslatableContents addLang(String type, ResourceLocation id, String localizedName) {
+    public MutableComponent addLang(String type, ResourceLocation id, String localizedName) {
         return addRawLang(Util.makeDescriptionId(type, id), localizedName);
     }
 
@@ -640,8 +643,8 @@ public abstract class AbstractRegistrate<S extends AbstractRegistrate<S>> {
      *            (English) translation value
      * @return A {@link TranslatableContents} representing the translated text
      */
-    public TranslatableContents addLang(String type, ResourceLocation id, String suffix, String localizedName) {
-        return addRawLang(Util.makeDescriptionId(type, id) + "." + suffix, localizedName);
+    public MutableComponent addLang(String type, ResourceLocation id, String suffix, String localizedName) {
+        return Component.translatable(Util.makeDescriptionId(type, id) + "." + suffix, localizedName);
     }
 
     /**
@@ -651,13 +654,13 @@ public abstract class AbstractRegistrate<S extends AbstractRegistrate<S>> {
      *            The translation key
      * @param value
      *            The (English) translation value
-     * @return A {@link TranslatableContents} representing the translated text
+     * @return A {@link MutableComponent} representing the translated text
      */
-    public TranslatableContents addRawLang(String key, String value) {
+    public MutableComponent addRawLang(String key, String value) {
         if (doDatagen.get()) {
             extraLang.get().add(Pair.of(key, value));
         }
-        return new TranslatableContents(key);
+        return Component.translatable(key);
     }
 
     @SuppressWarnings("null")
