@@ -33,7 +33,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.contents.LiteralContents;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
@@ -80,6 +82,8 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.text.AbstractDocument;
+
 public class TestMod implements ModInitializer {
 
     @Override
@@ -90,8 +94,8 @@ public class TestMod implements ModInitializer {
         registrate.addDataGenerator(ProviderType.ADVANCEMENT, adv -> {
             Advancement.Builder.advancement()
                     .addCriterion("has_egg", InventoryChangeTrigger.TriggerInstance.hasItems(Items.EGG))
-                    .display(Items.EGG,
-                            adv.title(registrate.getModid(), "root", "Test Advancement"), adv.desc(registrate.getModid(), "root", "Get an egg."),
+                    .display(Items.EGG.getDefaultInstance(),
+							MutableComponent.create(adv.title(registrate.getModid(), "root", "Test Advancement")), MutableComponent.create(adv.desc(registrate.getModid(), "root", "Get an egg.")),
                             new ResourceLocation("textures/gui/advancements/backgrounds/stone.png"), FrameType.TASK, true, true, false)
                     .save(adv, registrate.getModid() + ":root");
         });
@@ -132,7 +136,7 @@ public class TestMod implements ModInitializer {
 
                     @Override
                     public Component getDisplayName() {
-                        return new TextComponent("Test");
+                        return MutableComponent.create(new LiteralContents("Test"));
                     }
                 });
             }
