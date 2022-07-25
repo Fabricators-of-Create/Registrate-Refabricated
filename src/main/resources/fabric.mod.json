@@ -36,7 +36,7 @@
   "accessWidener": "registrate-fabric.accesswidener",
 
   "depends": {
-    "fabricloader": ">=0.12.10",
+    "fabricloader": ">=0.14.00",
     "fabric": "*"
   },
 
