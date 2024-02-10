@@ -37,7 +37,7 @@ public class RegistrateDataProvider implements DataProvider {
     private final String mod;
     private final Map<ProviderType<?>, RegistrateProvider> subProviders = new LinkedHashMap<>();
 
-    record DataInfo(FabricDataGenerator generator, ExistingFileHelper helper) {}
+    public record DataInfo(FabricDataGenerator generator, ExistingFileHelper helper) {}
 
     public RegistrateDataProvider(AbstractRegistrate<?> parent, String modid, FabricDataGenerator generator, ExistingFileHelper helper) {
         this.mod = modid;
