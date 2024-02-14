@@ -1,19 +1,13 @@
 package com.tterrag.registrate.util;
 
-import java.util.Arrays;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
-
 import com.google.common.collect.ObjectArrays;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
-
 import lombok.Getter;
 import lombok.experimental.Delegate;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -22,6 +16,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
+
+import java.util.Arrays;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /**
  * A helper for data generation when using ingredients as input(s) to recipes.<br>
@@ -50,7 +49,7 @@ public final class DataIngredient extends Ingredient {
     private final Ingredient parent;
     @Getter
     private final ResourceLocation id;
-    private final Function<RegistrateRecipeProvider, InventoryChangeTrigger.TriggerInstance> criteriaFactory;
+    private final Function<RegistrateRecipeProvider, Criterion<InventoryChangeTrigger.TriggerInstance>> criteriaFactory;
 
     private DataIngredient(Ingredient parent, ItemLike item) {
         super(Stream.empty());
@@ -78,7 +77,7 @@ public final class DataIngredient extends Ingredient {
 //        throw new UnsupportedOperationException("DataIngredient should only be used for data generation!");
 //    }
     
-    public InventoryChangeTrigger.TriggerInstance getCritereon(RegistrateRecipeProvider prov) {
+    public Criterion<InventoryChangeTrigger.TriggerInstance> getCritereon(RegistrateRecipeProvider prov) {
         return criteriaFactory.apply(prov);
     }
     
