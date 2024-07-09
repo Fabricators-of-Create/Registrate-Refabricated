@@ -1,9 +1,8 @@
 //file:noinspection GroovyAssignabilityCheck
 //file:noinspection GroovyAccessibility
 plugins {
-    id "fabric-loom" version "1.0.+"
-    id "io.github.juuxel.loom-quiltflower" version "1.+" // Quiltflower, a better decompiler
-    id "io.freefair.lombok" version "6.1.0-m3"
+    id "fabric-loom" version "1.6.+"
+    id "io.freefair.lombok" version "8.6"
     id "maven-publish"
 }
 
@@ -104,7 +103,6 @@ loom {
 
 lombok {
     version = "1.18.20"
-    config["lombok.addJavaxGeneratedAnnotation"] = "true"
 }
 
 delombok {
@@ -115,7 +113,7 @@ delombok {
 }
 
 task sourceJar(type: Jar, dependsOn: classes) {
-    classifier = "sources"
+    archiveClassifier = "sources"
     from sourceSets.main.delombokTask
     exclude "com.tterrag.registrate.test.*"
 }
