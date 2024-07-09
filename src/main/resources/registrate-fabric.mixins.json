@@ -5,12 +5,14 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "LootTableProviderMixin",
-    "accessor.BlockEntityRenderersAccessor",
     "accessor.FluidBlockAccessor",
     "accessor.LootContextParamSetsAccessor",
     "accessor.LootTableProviderAccessor",
     "accessor.SpawnEggItemAccessor",
     "accessor.SpawnPlacementsAccessor"
+  ],
+  "client": [
+    "accessor.BlockEntityRenderersAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
