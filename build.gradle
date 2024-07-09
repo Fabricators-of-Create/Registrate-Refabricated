@@ -25,12 +25,6 @@ repositories {
     maven { url = "https://maven.quiltmc.org/repository/release" }
     maven { url = "https://repo.maven.apache.org/maven2" }
     maven { url = "https://mvn.devos.one/snapshots" }
-    maven {
-        url = "https://jitpack.io"
-        content {
-            includeGroup("com.github.llamalad7.mixinextras")
-        }
-    }
 }
 
 dependencies {
@@ -46,8 +40,8 @@ dependencies {
     modApi(include("io.github.fabricators_of_create.Porting-Lib:tags:${project.porting_lib_version}")) { exclude(group: "io.vram") }
     modApi(include("io.github.fabricators_of_create.Porting-Lib:model_generators:${project.porting_lib_version}")) { exclude(group: "io.vram") }
     modApi(include("io.github.fabricators_of_create.Porting-Lib:data:${project.porting_lib_version}")) { exclude(group: "io.vram") }
-    implementation(include("com.github.llamalad7.mixinextras:mixinextras-fabric:${project.mixin_extras_version}"))
-    annotationProcessor("com.github.llamalad7.mixinextras:mixinextras-fabric:${project.mixin_extras_version}")
+    implementation(include("io.github.llamalad7:mixinextras-fabric:${project.mixin_extras_version}"))
+    annotationProcessor("io.github.llamalad7:mixinextras-fabric:${project.mixin_extras_version}")
 
     compileOnly("org.projectlombok:lombok:1.18.22")
 
