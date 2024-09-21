@@ -21,6 +21,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import org.jetbrains.annotations.Nullable;
@@ -76,14 +77,14 @@ public class ItemBuilder<T extends Item, P> extends AbstractBuilder<Item, T, P, 
 
     @Nullable
     private NonNullSupplier<Supplier<ItemColor>> colorHandler;
-    private Map<ResourceKey<CreativeModeTab>, Consumer<CreativeModeTabModifier>> creativeModeTabs = Maps.newLinkedHashMap();
+    private Map<ResourceKey<CreativeModeTab>, NonNullBiConsumer<DataGenContext<Item, T>, CreativeModeTabModifier>> creativeModeTabs = Maps.newLinkedHashMap();
 
     protected ItemBuilder(AbstractRegistrate<?> owner, P parent, String name, BuilderCallback callback, NonNullFunction<Item.Properties, T> factory) {
         super(owner, parent, name, callback, Registries.ITEM);
         this.factory = factory;
 
         onRegister(item -> {
-            creativeModeTabs.forEach(owner::modifyCreativeModeTab);
+            creativeModeTabs.forEach((creativeModeTab, consumer) -> owner.modifyCreativeModeTab(creativeModeTab, modifier -> consumer.accept(DataGenContext.from(this), modifier)));
             creativeModeTabs.clear(); // this registration should only fire once, to doubly ensure this, clear the map
         });
     }
@@ -116,50 +117,68 @@ public class ItemBuilder<T extends Item, P> extends AbstractBuilder<Item, T, P, 
     }
 
     /**
-     * Adds the item built from this builder into the given CreativeModeTab using the specified modifier
+     * Sets a tab modifier for the given tab which can be used to define custom logic for how the item stack is created and/or added to the tab.
      *
      * <p>
-     * CreativeModeTab registration is delegated off until the item has been finalized and registered to the {@link net.minecraft.core.registries.BuiltInRegistries#ITEM} registry.<br>
+     * CreativeModeTab registration is delegated off until the item has been finalized and registered to the {@link net.minecraft.core.registries.BuiltInRegistries#ITEM Item registry}.<br>
      * This means you can call this method as many times as you like during the build process with no added side effects.
      * <p>
-     * Calling this method with different {@link CreativeModeTab tabs} will add your item to all the specified tabs,
-     * unlike the old implementation which only allowed you to specify a single tab to display your times on.
+     * Calling this method with different {@link ResourceKey tab keys} will add the modifier to all the specified tabs.
      * <p>
-     * Calling this method multiple times with the same {@link NonNullSupplier tab supplier} will replace any previous calls.
+     * Calling this method multiple times with the same {@link ResourceKey tab key} will replace any existing modifier for that tab.
      *
-     * @param tab The {@link CreativeModeTab} to add the item into
-     * @param modifier The {@link CreativeModeTabModifier} used to build the ItemStack
+     * @param tab A {@link ResourceKey} representing the {@link CreativeModeTab} to use the modifier for
+     * @param modifier A {@link Consumer consumer} accepting a {@link CreativeModeTabModifier} used to update the tab
+     * @return This builder
+     * @deprecated Use {@link #tab(ResourceKey, NonNullBiConsumer)} which provides access to the registered item.
+     */
+    @Deprecated
+    public ItemBuilder<T, P> tab(ResourceKey<CreativeModeTab> tab, Consumer<CreativeModeTabModifier> modifier) {
+        return tab(tab, ($, m) -> modifier.accept(m));
+    }
+
+    /**
+     * Sets a tab modifier for the given tab which can be used to define custom logic for how the item stack is created and/or added to the tab.
+     *
+     * <p>
+     * CreativeModeTab registration is delegated off until the item has been finalized and registered to the {@link net.minecraft.core.registries.BuiltInRegistries#ITEM Item registry}.<br>
+     * This means you can call this method as many times as you like during the build process with no added side effects.
+     * <p>
+     * Calling this method with different {@link ResourceKey tab keys} will add the modifier to all the specified tabs.
+     * <p>
+     * Calling this method multiple times with the same {@link ResourceKey tab key} will replace any existing modifier for that tab.
+     *
+     * @param tab A {@link ResourceKey} representing the {@link CreativeModeTab} to use the modifier for
+     * @param modifier A {@link NonNullBiConsumer consumer} accepting a context object and {@link CreativeModeTabModifier} used to update the tab
      * @return This builder
      */
-    public ItemBuilder<T, P> tab(ResourceKey<CreativeModeTab> tab, Consumer<CreativeModeTabModifier> modifier) {
+    public ItemBuilder<T, P> tab(ResourceKey<CreativeModeTab> tab, NonNullBiConsumer<DataGenContext<Item, T>, CreativeModeTabModifier> modifier) {
         creativeModeTabs.put(tab, modifier); // Should we get the current value in the map [if one exists] and .andThen() the 2 together? right now we replace any consumer that currently exists
         return this;
     }
 
     /**
-     * Adds the item built from this builder into the given CreativeModeTab using the default ItemStack instance
-     *
+     * Adds the item built from this builder into the given CreativeModeTab using the default ItemStack instance.
      * <p>
-     * CreativeModeTab registration is delegated off until the item has been finalized and registered to the {@link net.minecraft.core.registries.BuiltInRegistries#ITEM} registry.<br>
+     * CreativeModeTab registration is delegated off until the item has been finalized and registered to the {@link net.minecraft.core.registries.BuiltInRegistries#ITEM Item registry}.<br>
      * This means you can call this method as many times as you like during the build process with no added side effects.
      * <p>
-     * Calling this method with different {@link CreativeModeTab tabs} will add your item to all the specified tabs,
-     * unlike the old implementation which only allowed you to specify a single tab to display your times on.
+     * Calling this method with different {@link ResourceKey tab keys} will add the item to all the specified tabs.
      * <p>
-     * Calling this method multiple times with the same {@link NonNullSupplier tab supplier} will replace any previous calls.
+     * Calling this method multiple times with the same {@link NonNullSupplier tab supplier} will have no effect.
      *
-     * @param tab The {@link CreativeModeTab} to add the item into
+     * @param tab A {@link ResourceKey} representing the {@link CreativeModeTab} to add to
      * @return This builder
-     * @see #tab(ResourceKey, Consumer)
+     * @see #tab(ResourceKey, NonNullBiConsumer)
      */
     public ItemBuilder<T, P> tab(ResourceKey<CreativeModeTab> tab) {
-        return tab(tab, modifier -> modifier.accept(get()));
+        return tab(tab, (item, modifier) -> modifier.accept(item));
     }
 
     /**
-     * Removes the item built from this builder from the given CreativeModeTab
+     * Removes the modifier from this builder from the given {@link CreativeModeTab}.
      *
-     * @param tab The {@link CreativeModeTab} to remove the item from
+     * @param tab A {@link ResourceKey} representing the {@link CreativeModeTab} to remove the modifier from
      * @return This builder
      */
     public ItemBuilder<T, P> removeTab(ResourceKey<CreativeModeTab> tab) {
@@ -243,6 +262,49 @@ public class ItemBuilder<T extends Item, P> extends AbstractBuilder<Item, T, P, 
     }
 
     /**
+     * Add burn time for the item
+     * @param tick time in ticks for this item to burn in furnace.
+     */
+    public ItemBuilder<T, P> burnTime(int tick) {
+        return dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(tick));
+    }
+
+    /**
+     * Add compost chance for the item
+     * @param chance chance for composter to increase one level when composting this item.
+     */
+    public ItemBuilder<T, P> compostable(float chance) {
+        return dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(chance));
+    }
+
+    @Nullable
+    private NonNullSupplier<Supplier<IClientItemExtensions>> clientExtension;
+
+    /**
+     * Register a client extension for this item. The {@link IClientItemExtensions} instance can be shared across many items.
+     *
+     * @param clientExtension
+     *            The client extension to register for this item
+     * @return this {@link ItemBuilder}
+     */
+    public ItemBuilder<T, P> clientExtension(NonNullSupplier<Supplier<IClientItemExtensions>> clientExtension) {
+        if (this.clientExtension == null) {
+            RegistrateDistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> this::registerClientExtension);
+        }
+        this.clientExtension = clientExtension;
+        return this;
+    }
+
+    protected void registerClientExtension() {
+        OneTimeEventReceiver.addModListener(getOwner(), RegisterClientExtensionsEvent.class, e -> {
+            NonNullSupplier<Supplier<IClientItemExtensions>> clientExtension = this.clientExtension;
+            if (clientExtension != null) {
+                e.registerItem(clientExtension.get().get(), getEntry());
+            }
+        });
+    }
+
+    /**
      * Assign {@link TagKey}{@code s} to this item. Multiple calls will add additional tags.
      *
      * @param tags
@@ -262,7 +324,7 @@ public class ItemBuilder<T extends Item, P> extends AbstractBuilder<Item, T, P, 
     }
 
     @Override
-    protected RegistryEntry<T> createEntryWrapper(RegistryObject<T> delegate) {
+    protected RegistryEntry<Item, T> createEntryWrapper(DeferredHolder<Item, T> delegate) {
         return new ItemEntry<>(getOwner(), delegate);
     }
 

@@ -1,11 +1,8 @@
 pluginManagement {
     repositories {
-        maven { url = "https://maven.quiltmc.org/repository/release" }
-        maven {
-            name = 'Fabric'
-            url = 'https://maven.fabricmc.net/'
-        }
         gradlePluginPortal()
+        maven { url = 'https://maven.fabricmc.net/' }
     }
 }
+
 rootProject.name = 'Registrate'

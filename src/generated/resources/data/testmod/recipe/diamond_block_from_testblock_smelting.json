@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:smelting",
+  "category": "blocks",
+  "cookingtime": 200,
+  "experience": 1.0,
+  "ingredient": {
+    "type": "testmod:data_ingredient",
+    "parent": {
+      "item": "testmod:testblock"
+    },
+    "criteria": [
+      {
+        "items": "testmod:testblock"
+      }
+    ],
+    "id": "testmod:testblock"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:diamond_block"
+  }
+}

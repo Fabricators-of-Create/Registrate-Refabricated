@@ -55,11 +55,11 @@ public class RegistrateItemModelProvider extends ItemModelProvider implements Re
     }
 
     public ItemModelBuilder blockItem(NonNullSupplier<? extends ItemLike> block, String suffix) {
-        return withExistingParent(name(block), new ResourceLocation(modid(block), "block/" + name(block) + suffix));
+        return withExistingParent(name(block), ResourceLocation.fromNamespaceAndPath(modid(block), "block/" + name(block) + suffix));
     }
 
     public ItemModelBuilder blockWithInventoryModel(NonNullSupplier<? extends ItemLike> block) {
-        return withExistingParent(name(block), new ResourceLocation(modid(block), "block/" + name(block) + "_inventory"));
+        return withExistingParent(name(block), ResourceLocation.fromNamespaceAndPath(modid(block), "block/" + name(block) + "_inventory"));
     }
 
     public ItemModelBuilder blockSprite(NonNullSupplier<? extends ItemLike> block) {
@@ -75,7 +75,7 @@ public class RegistrateItemModelProvider extends ItemModelProvider implements Re
     }
 
     public ItemModelBuilder generated(NonNullSupplier<? extends ItemLike> item, ResourceLocation... layers) {
-        ItemModelBuilder ret = getBuilder(name(item)).parent(new UncheckedModelFile("item/generated"));
+        ItemModelBuilder ret = getBuilder(name(item)).parent(new ModelFile.UncheckedModelFile("item/generated"));
         for (int i = 0; i < layers.length; i++) {
             ret = ret.texture("layer" + i, layers[i]);
         }

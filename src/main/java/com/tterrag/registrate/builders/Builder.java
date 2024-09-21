@@ -32,7 +32,7 @@ import net.minecraft.resources.ResourceKey;
  * @param <S>
  *            Self type
  */
-public interface Builder<R, T extends R, P, S extends Builder<R, T, P, S>> extends NonNullSupplier<RegistryEntry<T>> {
+public interface Builder<R, T extends R, P, S extends Builder<R, T, P, S>> extends NonNullSupplier<RegistryEntry<R, T>> {
 
     /**
      * Complete the current entry, and return the {@link RegistryEntry} that will supply the built entry once it is available. The builder can be used afterwards, and changes made will reflect the
@@ -40,7 +40,7 @@ public interface Builder<R, T extends R, P, S extends Builder<R, T, P, S>> exten
      * 
      * @return The {@link RegistryEntry} supplying the built entry.
      */
-    RegistryEntry<T> register();
+    RegistryEntry<R, T> register();
 
     /**
      * The owning {@link AbstractRegistrate} that created this builder.
@@ -73,7 +73,7 @@ public interface Builder<R, T extends R, P, S extends Builder<R, T, P, S>> exten
      *             If this builder has not been built yet
      */
     @Override
-    default RegistryEntry<T> get() {
+    default RegistryEntry<R, T> get() {
         return getOwner().<R, T> get(getName(), getRegistryKey());
     }
 
@@ -114,7 +114,7 @@ public interface Builder<R, T extends R, P, S extends Builder<R, T, P, S>> exten
      */
     @SuppressWarnings("unchecked")
     default <D extends RegistrateProvider> S setData(ProviderType<? extends D> type, NonNullBiConsumer<DataGenContext<R, T>, D> cons) {
-        getOwner().setDataGenerator(this, type, prov -> cons.accept(DataGenContext.from(this, getRegistryKey()), prov));
+        getOwner().setDataGenerator(this, type, prov -> cons.accept(DataGenContext.from(this), prov));
         return (S) this;
     }
 
@@ -134,6 +134,15 @@ public interface Builder<R, T extends R, P, S extends Builder<R, T, P, S>> exten
     @SuppressWarnings("unchecked")
     default <D extends RegistrateProvider> S addMiscData(ProviderType<? extends D> type, NonNullConsumer<? extends D> cons) {
         getOwner().addDataGenerator(type, cons);
+        return (S) this;
+    }
+
+    /**
+     * Add data map associated with this builder
+     */
+    default <D> S dataMap(DataMapType<R, D> type, D val) {
+        getOwner().addDataGenerator(ProviderType.DATA_MAP, e -> e.builder(type)
+                .add(DataGenContext.from(this).getId(), val, false));
         return (S) this;
     }
 
@@ -207,7 +216,7 @@ public interface Builder<R, T extends R, P, S extends Builder<R, T, P, S>> exten
     }
 
     /**
-     * Register the entry and return the parent object. The {@link RegistryObject} will be created but not returned. It can be retrieved later with {@link AbstractRegistrate#get(ResourceKey)} or
+     * Register the entry and return the parent object. The {@link net.neoforged.neoforge.registries.DeferredHolder} will be created but not returned. It can be retrieved later with {@link AbstractRegistrate#get(ResourceKey)} or
      * {@link AbstractRegistrate#get(String, ResourceKey)}.
      * 
      * @return the parent object

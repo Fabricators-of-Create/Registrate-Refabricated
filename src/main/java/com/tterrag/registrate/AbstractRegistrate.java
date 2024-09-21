@@ -1,5 +1,6 @@
 package com.tterrag.registrate;
 
+<<<<<<< HEAD
 import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.*;
@@ -16,6 +17,84 @@ import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.providers.RegistrateDataProvider;
 import com.tterrag.registrate.providers.RegistrateLangProvider;
 import com.tterrag.registrate.providers.RegistrateProvider;
+=======
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Table;
+import com.mojang.serialization.Codec;
+import com.tterrag.registrate.providers.*;
+import lombok.Setter;
+import net.minecraft.Util;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.MenuAccess;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType.EntityFactory;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.loading.FMLLoader;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.neoforged.neoforge.data.loading.DatagenModLoader;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.fluids.BaseFlowingFluid;
+import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.registries.*;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.message.Message;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ListMultimap;
+import com.tterrag.registrate.builders.BlockBuilder;
+import com.tterrag.registrate.builders.BlockEntityBuilder;
+import com.tterrag.registrate.builders.BlockEntityBuilder.BlockEntityFactory;
+import com.tterrag.registrate.builders.Builder;
+import com.tterrag.registrate.builders.BuilderCallback;
+import com.tterrag.registrate.builders.EntityBuilder;
+import com.tterrag.registrate.builders.FluidBuilder;
+import com.tterrag.registrate.builders.ItemBuilder;
+import com.tterrag.registrate.builders.MenuBuilder;
+import com.tterrag.registrate.builders.MenuBuilder.ForgeMenuFactory;
+import com.tterrag.registrate.builders.MenuBuilder.MenuFactory;
+import com.tterrag.registrate.builders.MenuBuilder.ScreenFactory;
+import com.tterrag.registrate.builders.NoConfigBuilder;
+>>>>>>> upstream/1.21/dev
 import com.tterrag.registrate.util.CreativeModeTabModifier;
 import com.tterrag.registrate.util.DebugMarkers;
 import com.tterrag.registrate.util.entry.ItemEntry;
@@ -26,6 +105,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Value;
 import lombok.extern.log4j.Log4j2;
+<<<<<<< HEAD
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
@@ -73,6 +153,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
+=======
+>>>>>>> upstream/1.21/dev
 
 /**
  * Manages all registrations and data generators for a mod.
@@ -105,22 +187,26 @@ public abstract class AbstractRegistrate<S extends AbstractRegistrate<S>> {
         ResourceLocation name;
         ResourceKey<? extends Registry<R>> type;
         NonNullSupplier<? extends T> creator;
-        RegistryEntry<T> delegate;
+        RegistryEntry<R, T> delegate;
 
         @Getter(value = AccessLevel.NONE)
         List<NonNullConsumer<? super T>> callbacks = new ArrayList<>();
 
-        Registration(ResourceLocation name, ResourceKey<? extends Registry<R>> type, NonNullSupplier<? extends T> creator, NonNullFunction<RegistryObject<T>, ? extends RegistryEntry<T>> entryFactory) {
+        Registration(ResourceLocation name, ResourceKey<? extends Registry<R>> type, NonNullSupplier<? extends T> creator, NonNullFunction<DeferredHolder<R, T>, ? extends RegistryEntry<R, T>> entryFactory) {
             this.name = name;
             this.type = type;
             this.creator =  creator.lazy();
-            this.delegate = entryFactory.apply(RegistryObject.create(name, type.location(), AbstractRegistrate.this.getModid()));
+            this.delegate = entryFactory.apply(DeferredHolder.create(type, name));
         }
         
         void register(Registry<R> registry) {
             T entry = creator.get();
+<<<<<<< HEAD
             Registry.register(registry, name, entry);
             delegate.updateReference(registry);
+=======
+            event.register(type, rh -> rh.register(name, entry));
+>>>>>>> upstream/1.21/dev
             callbacks.forEach(c -> c.accept(entry));
             callbacks.clear();
         }
@@ -134,10 +220,17 @@ public abstract class AbstractRegistrate<S extends AbstractRegistrate<S>> {
     /**
      * Checks if Minecraft is running from a dev environment. Enables certain debug logging.
      *
+<<<<<<< HEAD
      * @return {@code true} when in a dev environment
      */
     public static boolean isDevEnvironment() {
         return FabricLoader.getInstance().isDevelopmentEnvironment();
+=======
+     * @return {@code true} when in a dev environment (specifically, {@link FMLLoader#isProduction()} == false)
+     */
+    public static boolean isDevEnvironment() {
+        return !FMLLoader.isProduction();
+>>>>>>> upstream/1.21/dev
     }
 
     private final Table<ResourceKey<? extends Registry<?>>, String, Registration<?, ?>> registrations = HashBasedTable.create();
@@ -155,10 +248,17 @@ public abstract class AbstractRegistrate<S extends AbstractRegistrate<S>> {
     private final NonNullSupplier<Boolean> doDatagen = NonNullSupplier.lazy(() -> System.getProperty("fabric-api.datagen") != null);
 
     /**
-     * @return The mod ID that this {@link AbstractRegistrate} is creating objects for
+     * The mod ID that this {@link AbstractRegistrate} is creating objects for
      */
     @Getter
     private final String modid;
+
+    /**
+     * Get the mod event bus that event listeners will be registered to. Useful when Registrate is used in mods that use alternative language loaders, such as forgelin.
+     */
+    @Getter @Setter
+    @Nullable
+    private IEventBus modEventBus;
 
     @Nullable
     private String currentName;
@@ -184,10 +284,37 @@ public abstract class AbstractRegistrate<S extends AbstractRegistrate<S>> {
         return (S) this;
     }
 
+<<<<<<< HEAD
     public void register() {
         RegistryUtil.forAllRegistries(registry -> {
             onRegister(registry);
             onRegisterLate(registry);
+=======
+    /**
+     * Called during {@link Registrate#create(String) creation} to initialize event listeners. Custom implementations may add their own event listeners by overriding this.
+     * <p>
+     * <i>Always</i> call {@code super} in your override unless you know what you are doing!
+     *
+     * @param bus
+     *            The event bus
+     * @return This {@link AbstractRegistrate} object
+     */
+    public S registerEventListeners(IEventBus bus) {
+        if (this.modEventBus == null) {
+            this.modEventBus = bus;
+        }
+
+        Consumer<RegisterEvent> onRegister = this::onRegister;
+        Consumer<RegisterEvent> onRegisterLate = this::onRegisterLate;
+        bus.addListener(onRegister);
+        bus.addListener(EventPriority.LOWEST, onRegisterLate);
+        bus.addListener(this::onBuildCreativeModeTabContents); // Fired multiple times when ever tabs need contents rebuilt (changing op tab perms for example)
+        
+        // Register events fire multiple times, so clean them up on common setup
+        OneTimeEventReceiver.addModListener(this, FMLCommonSetupEvent.class, $ -> {
+            OneTimeEventReceiver.unregister(this, onRegister, RegisterEvent.class);
+            OneTimeEventReceiver.unregister(this, onRegisterLate, RegisterEvent.class);
+>>>>>>> upstream/1.21/dev
         });
         creativeModeTabModifiers.forEach((key, consumer) ->
                 ItemGroupEvents.modifyEntriesEvent(key).register(entries ->
@@ -200,8 +327,24 @@ public abstract class AbstractRegistrate<S extends AbstractRegistrate<S>> {
         );
     }
 
+<<<<<<< HEAD
     protected void onRegister(Registry<?> registry) {
         ResourceKey<? extends Registry<?>> type = registry.key();
+=======
+    /**
+     * Called once per registry to gather collected registrations and add entries to the registry. May be overriden in custom implementations to perform additional actions upon entry registration, but
+     * <i>must</i> call {@code super}.
+     * 
+     * @param event
+     *            The {@link RegisterEvent} being fired, use {@link RegisterEvent#getRegistryKey()} to query the registry type
+     */
+    protected void onRegister(RegisterEvent event) {
+        ResourceKey<? extends Registry<?>> type = event.getRegistryKey();
+        if (type == null) {
+            log.debug(DebugMarkers.REGISTER, "Skipping invalid registry with no supertype: " + event.getRegistryKey().location());
+            return;
+        }
+>>>>>>> upstream/1.21/dev
         if (!registerCallbacks.isEmpty()) {
             registerCallbacks.asMap().forEach((k, v) -> log.warn("Found {} unused register callback(s) for entry {} [{}]. Was the entry ever registered?", v.size(), k.getLeft(), k.getRight().location()));
             registerCallbacks.clear();
@@ -211,13 +354,20 @@ public abstract class AbstractRegistrate<S extends AbstractRegistrate<S>> {
         }
         Map<String, Registration<?, ?>> registrationsForType = registrations.row(type);
         if (registrationsForType.size() > 0) {
-            log.debug(DebugMarkers.REGISTER, "Registering {} known objects of type {}", registrationsForType.size(), type.location());
+            log.trace(DebugMarkers.REGISTER, "({}) Registering {} known objects of type {}", getModid(), registrationsForType.size(), type.location());
             for (Entry<String, Registration<?, ?>> e : registrationsForType.entrySet()) {
                 try {
+<<<<<<< HEAD
                     e.getValue().register((Registry) registry);
                     log.debug(DebugMarkers.REGISTER, "Registered {} to registry {}", e.getValue().getName(), type);
                 } catch (Exception ex) {
                     String err = "Unexpected error while registering entry " + e.getValue().getName() + " to registry " + type;
+=======
+                    e.getValue().register(event);
+                    log.trace(DebugMarkers.REGISTER, "Registered {} to registry {}", e.getValue().getName(), event.getRegistryKey().location());
+                } catch (Exception ex) {
+                    String err = "Unexpected error while registering entry " + e.getValue().getName() + " to registry " + event.getRegistryKey().location();
+>>>>>>> upstream/1.21/dev
                     if (skipErrors) {
                         log.error(DebugMarkers.REGISTER, err);
                     } else {
@@ -240,6 +390,23 @@ public abstract class AbstractRegistrate<S extends AbstractRegistrate<S>> {
         completedRegistrations.add(type);
     }
 
+<<<<<<< HEAD
+=======
+    /**
+     * Called when a {@link CreativeModeTab} is being populated to fill in any entries that belong there. Can be overriden in custom implementations.
+     * 
+     * @param event
+     *            The event
+     */
+    protected void onBuildCreativeModeTabContents(BuildCreativeModeTabContentsEvent event) {
+        var modifier = new CreativeModeTabModifier(event::getFlags, event::hasPermissions, event::accept, event::getParameters);
+
+        creativeModeTabModifiers.forEach((key, value) -> {
+            if(event.getTabKey().equals(key)) value.accept(modifier);
+        });
+    }
+
+>>>>>>> upstream/1.21/dev
     @Nullable
     private RegistrateDataProvider provider;
 
@@ -287,14 +454,14 @@ public abstract class AbstractRegistrate<S extends AbstractRegistrate<S>> {
      * @param <T>
      *            The type of the entry to return
      * @param type
-     *            A class representing the registry type
+     *            A {@link ResourceKey} for the registry 
      * @return A {@link RegistryEntry} which will supply the requested entry, if it exists
      * @throws IllegalArgumentException
      *             if no such registration has been done
      * @throws NullPointerException
      *             if current name has not been set via {@link #object(String)}
      */
-    public <R, T extends R> RegistryEntry<T> get(ResourceKey<? extends Registry<R>> type) {
+    public <R, T extends R> RegistryEntry<R, T> get(ResourceKey<? extends Registry<R>> type) {
         return this.<R, T>get(currentName(), type);
     }
 
@@ -310,7 +477,7 @@ public abstract class AbstractRegistrate<S extends AbstractRegistrate<S>> {
      *
      * ...
      *
-     * public static final RegistryObject<BlockItem> MY_BLOCK_ITEM = REGISTRATE.get("my_block", Item.class);
+     * public static final RegistryObject<BlockItem> MY_BLOCK_ITEM = REGISTRATE.get("my_block", ForgeRegistries.ITEMS.getRegistryKey());
      * }
      * </pre>
      *
@@ -321,12 +488,12 @@ public abstract class AbstractRegistrate<S extends AbstractRegistrate<S>> {
      * @param name
      *            The name of the registry entry to request
      * @param type
-     *            A class representing the registry type
+     *            A {@link ResourceKey} for the registry
      * @return A {@link RegistryEntry} which will supply the requested entry, if it exists
      * @throws IllegalArgumentException
      *             if no such registration has been done
      */
-    public <R, T extends R> RegistryEntry<T> get(String name, ResourceKey<? extends Registry<R>> type) {
+    public <R, T extends R> RegistryEntry<R, T> get(String name, ResourceKey<? extends Registry<R>> type) {
         return this.<R, T>getRegistration(name, type).getDelegate();
     }
 
@@ -341,11 +508,11 @@ public abstract class AbstractRegistrate<S extends AbstractRegistrate<S>> {
      *            The name of the registry entry to request
      * @param type
      *            A class representing the registry type
-     * @return A {@link RegistryEntry} which will supply the requested entry, if it exists, otherwise the {@link RegistryEntry#empty() empty entry}
+     * @return A {@link RegistryEntry} which will supply the requested entry, if it exists
      */
-    public <R, T extends R> RegistryEntry<T> getOptional(String name, ResourceKey<? extends Registry<R>> type) {
+    public <R, T extends R> Optional<RegistryEntry<R, T>> getOptional(String name, ResourceKey<? extends Registry<R>> type) {
         Registration<R, T> reg = this.<R, T>getRegistrationUnchecked(name, type);
-        return reg == null ? RegistryEntry.empty() : reg.getDelegate();
+        return reg == null ? Optional.empty() : Optional.of(reg.getDelegate());
     }
 
     @SuppressWarnings("unchecked")
@@ -359,7 +526,7 @@ public abstract class AbstractRegistrate<S extends AbstractRegistrate<S>> {
         if (reg != null) {
             return reg;
         }
-        throw new IllegalArgumentException("Unknown registration " + name + " for type " + type);
+        throw new IllegalArgumentException("Unknown registration " + name + " for type " + type.location());
     }
 
     /**
@@ -374,8 +541,8 @@ public abstract class AbstractRegistrate<S extends AbstractRegistrate<S>> {
      * @return A collection of {@link RegistryEntry} objects representing all entries in the given registry which are known to this {@link AbstractRegistrate} object.
      */
     @SuppressWarnings({ "null", "unchecked" })
-    public <R> Collection<RegistryEntry<R>> getAll(ResourceKey<? extends Registry<R>> type) {
-        return registrations.row(type).values().stream().map(r -> (RegistryEntry<R>) r.getDelegate()).collect(Collectors.toList());
+    public <R, T extends R> Collection<RegistryEntry<R, T>> getAll(ResourceKey<? extends Registry<R>> type) {
+        return registrations.row(type).values().stream().map(r -> (RegistryEntry<R, T>) r.getDelegate()).collect(Collectors.toList());
     }
 
     /**
@@ -512,9 +679,19 @@ public abstract class AbstractRegistrate<S extends AbstractRegistrate<S>> {
      */
     public <T extends RegistrateProvider> S addDataGenerator(ProviderType<? extends T> type, NonNullConsumer<? extends T> cons) {
         if (doDatagen.get()) {
+            if (provider != null) throw new IllegalStateException("Cannot add data generator after construction of root generator");
             datagens.put(type, cons);
         }
         return self();
+    }
+
+    private final DataProviderInitializer initializer = new DataProviderInitializer();
+
+    /**
+     * Access datapack registry and data provider dependency settings
+     */
+    public DataProviderInitializer getDataGenInitializer() {
+        return initializer;
     }
 
     private final NonNullSupplier<List<Pair<String, String>>> extraLang = NonNullSupplier.lazy(() -> {
@@ -799,9 +976,9 @@ public abstract class AbstractRegistrate<S extends AbstractRegistrate<S>> {
      *            Optional custom factory to create special {@link RegistryEntry} types
      * @return A {@link RegistryEntry} that will hold the created entry after registration is complete
      */
-    protected <R, T extends R> RegistryEntry<T> accept(String name, ResourceKey<? extends Registry<R>> type, Builder<R, T, ?, ?> builder, NonNullSupplier<? extends T> creator, NonNullFunction<RegistryObject<T>, ? extends RegistryEntry<T>> entryFactory) {
-        Registration<R, T> reg = new Registration<>(new ResourceLocation(modid, name), type, creator, entryFactory);
-        log.debug(DebugMarkers.REGISTER, "Captured registration for entry {} of type {}", name, type.location());
+    protected <R, T extends R> RegistryEntry<R, T> accept(String name, ResourceKey<? extends Registry<R>> type, Builder<R, T, ?, ?> builder, NonNullSupplier<? extends T> creator, NonNullFunction<DeferredHolder<R, T>, ? extends RegistryEntry<R, T>> entryFactory) {
+        Registration<R, T> reg = new Registration<>(ResourceLocation.fromNamespaceAndPath(modid, name), type, creator, entryFactory);
+        log.trace(DebugMarkers.REGISTER, "Captured registration for entry {}:{} of type {}", getModid(), name, type.location());
         registerCallbacks.removeAll(Pair.of(name, type)).forEach(callback -> {
             @SuppressWarnings({ "unchecked", "null" })
             NonNullConsumer<? super T> unsafeCallback = (NonNullConsumer<? super T>) callback;
@@ -811,6 +988,7 @@ public abstract class AbstractRegistrate<S extends AbstractRegistrate<S>> {
         return reg.getDelegate();
     }
 
+<<<<<<< HEAD
     @Beta
     public <R> ResourceKey<Registry<R>> makeRegistry(FabricRegistryBuilder<R, ?> builder) {
         //noinspection unchecked
@@ -855,25 +1033,85 @@ public abstract class AbstractRegistrate<S extends AbstractRegistrate<S>> {
             builder.attribute(attribute);
         }
         return makeRegistry(builder);
+=======
+    /**
+     * Helper to create a new registry for custom objects. The returned {@link ResourceKey} can be used immediately in methods like {@link #simple(ResourceKey, NonNullSupplier) simple} or
+     * {@link #generic(ResourceKey, NonNullSupplier) generic}.
+     * <p>
+     * Alternatively, a custom {@link Builder builder} can be created.
+     * <p>
+     * This method will automatically subscribe to the {@link NewRegistryEvent} and create the registry at the proper time. Thus, the new registry will not exist immediately after this is called.
+     * 
+     * @param <R>
+     *            The type of object the new registry will contain
+     * @param name
+     *            The ID of this registry
+     * @param builder
+     *            A function to create the {@link RegistryBuilder} that defines the other properties/behaviors of the created registry
+     * @return A {@link ResourceKey resource key} referencing the to-be-created registry.
+     */
+    public <R> ResourceKey<Registry<R>> makeRegistry(String name, Function<ResourceKey<Registry<R>>, RegistryBuilder<R>> builder) {
+        final ResourceKey<Registry<R>> registryId = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(getModid(), name));
+        OneTimeEventReceiver.addModListener(this, NewRegistryEvent.class, e -> e.register(builder.apply(registryId).create()));
+        return registryId;
+    }
+
+    /**
+     * Registers the given registry key as an unsynced datapack registry, which will cause data to be loaded from
+     * a datapack folder based on the registry's name. The datapack registry is not required to be present
+     * on clients when connecting to servers with the mod/registry.
+     * <p>
+     * Data JSONs will be loaded from {@code data/<datapack_namespace>/modid/registryname/}, where {@code modid} is the namespace of the registry key.
+     *
+     * @param name The ID of this registry
+     * @param codec The codec to be used for loading data from datapacks on servers
+     * @see #makeDatapackRegistry(String, Codec, Codec)
+     */
+    public <R> ResourceKey<Registry<R>> makeDatapackRegistry(String name, Codec<R> codec) {
+        return makeDatapackRegistry(name, codec, null);
+    }
+
+    /**
+     * Registers the registry key as a datapack registry, which will cause data to be loaded from
+     * a datapack folder based on the registry's name.
+     * <p>
+     * Data JSONs will be loaded from {@code data/<datapack_namespace>/modid/registryname/}, where {@code modid} is the namespace of the registry key.
+     *
+     * @param name The ID of this registry
+     * @param codec The codec to be used for loading data from datapacks on servers
+     * @param networkCodec The codec to be used for syncing loaded data to clients.
+     * If {@code networkCodec} is null, data will not be synced, and clients are not required to have this
+     * datapack registry to join a server.
+     * <p>
+     * If {@code networkCodec} is not null, clients must have this datapack registry/mod
+     * when joining a server that has this datapack registry/mod.
+     * The data will be synced using the network codec and accessible via {@link ClientPacketListener#registryAccess()}.
+     * @see #makeDatapackRegistry(String, Codec)
+     */
+    public <R> ResourceKey<Registry<R>> makeDatapackRegistry(String name, Codec<R> codec, @Nullable Codec<R> networkCodec) {
+        final ResourceKey<Registry<R>> registryId = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(getModid(), name));
+        OneTimeEventReceiver.addModListener(this, DataPackRegistryEvent.NewRegistry.class, event -> event.dataPackRegistry(registryId, codec, networkCodec));
+        return registryId;
+>>>>>>> upstream/1.21/dev
     }
 
     /* === Builder helpers === */
 
     // Generic
 
-    public <R, T extends R> RegistryEntry<T> simple(ResourceKey<Registry<R>> registryType, NonNullSupplier<T> factory) {
+    public <R, T extends R> RegistryEntry<R, T> simple(ResourceKey<Registry<R>> registryType, NonNullSupplier<T> factory) {
         return simple(currentName(), registryType, factory);
     }
 
-    public <R, T extends R> RegistryEntry<T> simple(String name, ResourceKey<Registry<R>> registryType, NonNullSupplier<T> factory) {
+    public <R, T extends R> RegistryEntry<R, T> simple(String name, ResourceKey<Registry<R>> registryType, NonNullSupplier<T> factory) {
         return simple(this, name, registryType, factory);
     }
 
-    public <R, T extends R, P> RegistryEntry<T> simple(P parent, ResourceKey<Registry<R>> registryType, NonNullSupplier<T> factory) {
+    public <R, T extends R, P> RegistryEntry<R, T> simple(P parent, ResourceKey<Registry<R>> registryType, NonNullSupplier<T> factory) {
         return simple(parent, currentName(), registryType, factory);
     }
 
-    public <R, T extends R, P> RegistryEntry<T> simple(P parent, String name, ResourceKey<Registry<R>> registryType, NonNullSupplier<T> factory) {
+    public <R, T extends R, P> RegistryEntry<R, T> simple(P parent, String name, ResourceKey<Registry<R>> registryType, NonNullSupplier<T> factory) {
         return generic(parent, name, registryType, factory).register();
     }
 
@@ -968,6 +1206,7 @@ public abstract class AbstractRegistrate<S extends AbstractRegistrate<S>> {
 
     // Fluids
 
+<<<<<<< HEAD
     public FluidBuilder<SimpleFlowableFluid.Flowing, S> fluid() {
         return fluid(self());
     }
@@ -1020,6 +1259,164 @@ public abstract class AbstractRegistrate<S extends AbstractRegistrate<S>> {
         return entry(name, callback -> FluidBuilder.create(this, parent, name, callback, stillTexture, flowingTexture, fluidFactory));
     }
 
+=======
+    public FluidBuilder<BaseFlowingFluid.Flowing, S> fluid() {
+        return fluid(self());
+    }
+
+    public FluidBuilder<BaseFlowingFluid.Flowing, S> fluid(FluidBuilder.FluidTypeFactory typeFactory) {
+        return fluid(self(), typeFactory);
+    }
+
+    public FluidBuilder<BaseFlowingFluid.Flowing, S> fluid(NonNullSupplier<FluidType> fluidType) {
+        return fluid(self(), fluidType);
+    }
+
+    public FluidBuilder<BaseFlowingFluid.Flowing, S> fluid(ResourceLocation stillTexture, ResourceLocation flowingTexture) {
+        return fluid(self(), stillTexture, flowingTexture);
+    }
+
+    public FluidBuilder<BaseFlowingFluid.Flowing, S> fluid(ResourceLocation stillTexture, ResourceLocation flowingTexture, FluidBuilder.FluidTypeFactory typeFactory) {
+        return fluid(self(), stillTexture, flowingTexture, typeFactory);
+    }
+
+    public FluidBuilder<BaseFlowingFluid.Flowing, S> fluid(ResourceLocation stillTexture, ResourceLocation flowingTexture, NonNullSupplier<FluidType> fluidType) {
+        return fluid(self(), stillTexture, flowingTexture, fluidType);
+    }
+
+    public <T extends BaseFlowingFluid> FluidBuilder<T, S> fluid(ResourceLocation stillTexture, ResourceLocation flowingTexture,
+            NonNullFunction<BaseFlowingFluid.Properties, T> fluidFactory) {
+        return fluid(self(), stillTexture, flowingTexture, fluidFactory);
+    }
+
+    public <T extends BaseFlowingFluid> FluidBuilder<T, S> fluid(ResourceLocation stillTexture, ResourceLocation flowingTexture,
+        FluidBuilder.FluidTypeFactory typeFactory, NonNullFunction<BaseFlowingFluid.Properties, T> fluidFactory) {
+        return fluid(self(), stillTexture, flowingTexture, typeFactory, fluidFactory);
+    }
+
+    public <T extends BaseFlowingFluid> FluidBuilder<T, S> fluid(ResourceLocation stillTexture, ResourceLocation flowingTexture,
+        NonNullSupplier<FluidType> fluidType, NonNullFunction<BaseFlowingFluid.Properties, T> fluidFactory) {
+        return fluid(self(), stillTexture, flowingTexture, fluidType, fluidFactory);
+    }
+
+    public FluidBuilder<BaseFlowingFluid.Flowing, S> fluid(String name) {
+        return fluid(self(), name);
+    }
+
+    public FluidBuilder<BaseFlowingFluid.Flowing, S> fluid(String name, FluidBuilder.FluidTypeFactory typeFactory) {
+        return fluid(self(), name, typeFactory);
+    }
+
+    public FluidBuilder<BaseFlowingFluid.Flowing, S> fluid(String name, NonNullSupplier<FluidType> fluidType) {
+        return fluid(self(), name, fluidType);
+    }
+
+    public FluidBuilder<BaseFlowingFluid.Flowing, S> fluid(String name, ResourceLocation stillTexture, ResourceLocation flowingTexture) {
+        return fluid(self(), name, stillTexture, flowingTexture);
+    }
+
+    public FluidBuilder<BaseFlowingFluid.Flowing, S> fluid(String name, ResourceLocation stillTexture, ResourceLocation flowingTexture, FluidBuilder.FluidTypeFactory typeFactory) {
+        return fluid(self(), name, stillTexture, flowingTexture, typeFactory);
+    }
+
+    public FluidBuilder<BaseFlowingFluid.Flowing, S> fluid(String name, ResourceLocation stillTexture, ResourceLocation flowingTexture, NonNullSupplier<FluidType> fluidType) {
+        return fluid(self(), name, stillTexture, flowingTexture, fluidType);
+    }
+
+    public <T extends BaseFlowingFluid> FluidBuilder<T, S> fluid(String name, ResourceLocation stillTexture, ResourceLocation flowingTexture,
+        NonNullFunction<BaseFlowingFluid.Properties, T> fluidFactory) {
+        return fluid(self(), name, stillTexture, flowingTexture, fluidFactory);
+    }
+
+    public <T extends BaseFlowingFluid> FluidBuilder<T, S> fluid(String name, ResourceLocation stillTexture, ResourceLocation flowingTexture,
+        FluidBuilder.FluidTypeFactory typeFactory, NonNullFunction<BaseFlowingFluid.Properties, T> fluidFactory) {
+        return fluid(self(), name, stillTexture, flowingTexture, typeFactory, fluidFactory);
+    }
+
+    public <T extends BaseFlowingFluid> FluidBuilder<T, S> fluid(String name, ResourceLocation stillTexture, ResourceLocation flowingTexture,
+        NonNullSupplier<FluidType> fluidType, NonNullFunction<BaseFlowingFluid.Properties, T> fluidFactory) {
+        return fluid(self(), name, stillTexture, flowingTexture, fluidType, fluidFactory);
+    }
+
+    public <P> FluidBuilder<BaseFlowingFluid.Flowing, P> fluid(P parent) {
+        return fluid(parent, currentName());
+    }
+
+    public <P> FluidBuilder<BaseFlowingFluid.Flowing, P> fluid(P parent, FluidBuilder.FluidTypeFactory typeFactory) {
+        return fluid(parent, currentName(), typeFactory);
+    }
+
+    public <P> FluidBuilder<BaseFlowingFluid.Flowing, P> fluid(P parent, NonNullSupplier<FluidType> fluidType) {
+        return fluid(parent, currentName(), fluidType);
+    }
+
+    public <P> FluidBuilder<BaseFlowingFluid.Flowing, P> fluid(P parent, ResourceLocation stillTexture, ResourceLocation flowingTexture) {
+        return fluid(parent, currentName(), stillTexture, flowingTexture);
+    }
+
+    public <P> FluidBuilder<BaseFlowingFluid.Flowing, P> fluid(P parent, ResourceLocation stillTexture, ResourceLocation flowingTexture, FluidBuilder.FluidTypeFactory typeFactory) {
+        return fluid(parent, currentName(), stillTexture, flowingTexture, typeFactory);
+    }
+
+    public <P> FluidBuilder<BaseFlowingFluid.Flowing, P> fluid(P parent, ResourceLocation stillTexture, ResourceLocation flowingTexture, NonNullSupplier<FluidType> fluidType) {
+        return fluid(parent, currentName(), stillTexture, flowingTexture, fluidType);
+    }
+
+    public <T extends BaseFlowingFluid, P> FluidBuilder<T, P> fluid(P parent, ResourceLocation stillTexture, ResourceLocation flowingTexture,
+        NonNullFunction<BaseFlowingFluid.Properties, T> fluidFactory) {
+        return fluid(parent, currentName(), stillTexture, flowingTexture, fluidFactory);
+    }
+
+    public <T extends BaseFlowingFluid, P> FluidBuilder<T, P> fluid(P parent, ResourceLocation stillTexture, ResourceLocation flowingTexture,
+        FluidBuilder.FluidTypeFactory typeFactory, NonNullFunction<BaseFlowingFluid.Properties, T> fluidFactory) {
+        return fluid(parent, currentName(), stillTexture, flowingTexture, typeFactory, fluidFactory);
+    }
+
+    public <T extends BaseFlowingFluid, P> FluidBuilder<T, P> fluid(P parent, ResourceLocation stillTexture, ResourceLocation flowingTexture,
+        NonNullSupplier<FluidType> fluidType, NonNullFunction<BaseFlowingFluid.Properties, T> fluidFactory) {
+        return fluid(parent, currentName(), stillTexture, flowingTexture, fluidType, fluidFactory);
+    }
+
+    public <P> FluidBuilder<BaseFlowingFluid.Flowing, P> fluid(P parent, String name) {
+        return fluid(parent, name, ResourceLocation.fromNamespaceAndPath(getModid(), "block/" + currentName() + "_still"), ResourceLocation.fromNamespaceAndPath(getModid(), "block/" + currentName() + "_flow"));
+    }
+
+    public <P> FluidBuilder<BaseFlowingFluid.Flowing, P> fluid(P parent, String name, FluidBuilder.FluidTypeFactory typeFactory) {
+        return fluid(parent, name, ResourceLocation.fromNamespaceAndPath(getModid(), "block/" + currentName() + "_still"), ResourceLocation.fromNamespaceAndPath(getModid(), "block/" + currentName() + "_flow"), typeFactory);
+    }
+
+    public <P> FluidBuilder<BaseFlowingFluid.Flowing, P> fluid(P parent, String name, NonNullSupplier<FluidType> fluidType) {
+        return fluid(parent, name, ResourceLocation.fromNamespaceAndPath(getModid(), "block/" + currentName() + "_still"), ResourceLocation.fromNamespaceAndPath(getModid(), "block/" + currentName() + "_flow"), fluidType);
+    }
+
+    public <P> FluidBuilder<BaseFlowingFluid.Flowing, P> fluid(P parent, String name, ResourceLocation stillTexture, ResourceLocation flowingTexture) {
+        return entry(name, callback -> FluidBuilder.create(this, parent, name, callback, stillTexture, flowingTexture));
+    }
+
+    public <P> FluidBuilder<BaseFlowingFluid.Flowing, P> fluid(P parent, String name, ResourceLocation stillTexture, ResourceLocation flowingTexture, FluidBuilder.FluidTypeFactory typeFactory) {
+        return entry(name, callback -> FluidBuilder.create(this, parent, name, callback, stillTexture, flowingTexture, typeFactory));
+    }
+
+    public <P> FluidBuilder<BaseFlowingFluid.Flowing, P> fluid(P parent, String name, ResourceLocation stillTexture, ResourceLocation flowingTexture, NonNullSupplier<FluidType> fluidType) {
+        return entry(name, callback -> FluidBuilder.create(this, parent, name, callback, stillTexture, flowingTexture, fluidType));
+    }
+
+    public <T extends BaseFlowingFluid, P> FluidBuilder<T, P> fluid(P parent, String name, ResourceLocation stillTexture, ResourceLocation flowingTexture,
+        NonNullFunction<BaseFlowingFluid.Properties, T> fluidFactory) {
+        return entry(name, callback -> FluidBuilder.create(this, parent, name, callback, stillTexture, flowingTexture, fluidFactory));
+    }
+
+    public <T extends BaseFlowingFluid, P> FluidBuilder<T, P> fluid(P parent, String name, ResourceLocation stillTexture, ResourceLocation flowingTexture,
+        FluidBuilder.FluidTypeFactory typeFactory, NonNullFunction<BaseFlowingFluid.Properties, T> fluidFactory) {
+        return entry(name, callback -> FluidBuilder.create(this, parent, name, callback, stillTexture, flowingTexture, typeFactory, fluidFactory));
+    }
+
+    public <T extends BaseFlowingFluid, P> FluidBuilder<T, P> fluid(P parent, String name, ResourceLocation stillTexture, ResourceLocation flowingTexture,
+        NonNullSupplier<FluidType> fluidType, NonNullFunction<BaseFlowingFluid.Properties, T> fluidFactory) {
+        return entry(name, callback -> FluidBuilder.create(this, parent, name, callback, stillTexture, flowingTexture, fluidType, fluidFactory));
+    }
+
+>>>>>>> upstream/1.21/dev
     // Menu
 
     public <T extends AbstractContainerMenu, SC extends Screen & MenuAccess<T>> MenuBuilder<T, SC, S> menu(MenuFactory<T> factory, NonNullSupplier<ScreenFactory<T, SC>> screenFactory) {
@@ -1054,24 +1451,6 @@ public abstract class AbstractRegistrate<S extends AbstractRegistrate<S>> {
         return entry(name, callback -> new MenuBuilder<T, SC, P>(this, parent, name, callback, factory, screenFactory));
     }
 
-    // Enchantment
-
-    public <T extends Enchantment> EnchantmentBuilder<T, S> enchantment(EnchantmentCategory type, EnchantmentFactory<T> factory) {
-        return enchantment(self(), type, factory);
-    }
-
-    public <T extends Enchantment> EnchantmentBuilder<T, S> enchantment(String name, EnchantmentCategory type, EnchantmentFactory<T> factory) {
-        return enchantment(self(), name, type, factory);
-    }
-
-    public <T extends Enchantment, P> EnchantmentBuilder<T, P> enchantment(P parent, EnchantmentCategory type, EnchantmentFactory<T> factory) {
-        return enchantment(parent, currentName(), type, factory);
-    }
-
-    public <T extends Enchantment, P> EnchantmentBuilder<T, P> enchantment(P parent, String name, EnchantmentCategory type, EnchantmentFactory<T> factory) {
-        return entry(name, callback -> EnchantmentBuilder.create(this, parent, name, callback, type, factory));
-    }
-
     // Creative Tab
 
     public NoConfigBuilder<CreativeModeTab, CreativeModeTab, S> defaultCreativeTab() {
@@ -1103,7 +1482,7 @@ public abstract class AbstractRegistrate<S extends AbstractRegistrate<S>> {
     }
 
     public <P> NoConfigBuilder<CreativeModeTab, CreativeModeTab, P> defaultCreativeTab(P parent, String name, Consumer<CreativeModeTab.Builder> config) {
-        this.defaultCreativeModeTab = ResourceKey.create(Registries.CREATIVE_MODE_TAB, new ResourceLocation(this.modid, name));
+        this.defaultCreativeModeTab = ResourceKey.create(Registries.CREATIVE_MODE_TAB, ResourceLocation.fromNamespaceAndPath(this.modid, name));
         return this.generic(parent, name, Registries.CREATIVE_MODE_TAB, () -> {
             var builder = FabricItemGroup.builder()
                     .icon(() -> getAll(Registries.ITEM).stream().findFirst().map(ItemEntry::cast).map(ItemEntry::asStack).orElse(new ItemStack(Items.AIR)))

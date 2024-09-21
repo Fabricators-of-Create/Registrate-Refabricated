@@ -18,6 +18,7 @@ import io.github.fabricators_of_create.porting_lib.data.ExistingFileHelper;
 import lombok.extern.log4j.Log4j2;
 
 import net.minecraft.core.HolderLookup.Provider;
+import net.minecraft.core.Registry;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 
@@ -31,6 +32,8 @@ public class RegistrateDataProvider implements DataProvider {
 
     @SuppressWarnings("null")
     static final BiMap<String, ProviderType<?>> TYPES = HashBiMap.create();
+
+    static final Map<ResourceKey<? extends Registry<?>>, ProviderType<?>> TAG_TYPES = new ConcurrentHashMap<>();
 
     public static @Nullable String getTypeName(ProviderType<?> type) {
         return TYPES.inverse().get(type);
@@ -55,12 +58,17 @@ public class RegistrateDataProvider implements DataProvider {
 //        }
         log.debug(DebugMarkers.DATA, "Gathering providers for sides: {}", sides);
         Map<ProviderType<?>, RegistrateProvider> known = new HashMap<>();
-        for (String id : TYPES.keySet()) {
-            ProviderType<?> type = TYPES.get(id);
-            RegistrateProvider prov = type.create(parent, new DataInfo(output, helper, registriesLookup), known);
+        for (DataProviderInitializer.Sorted sorted :parent.getDataGenInitializer().getSortedProviders()) {
+            ProviderType<?> type = sorted.type();
+            var lookup = registriesLookup;
+            if (sorted.parent() != null) lookup = ((RegistrateLookupFillerProvider) known.get(sorted.parent())).getFilledProvider();
+            RegistrateProvider prov = ProviderType.create(type, parent, new DataInfo(output, helper, registriesLookup), known, lookup);
+            if (prov instanceof RegistrateTagsProvider<?> tagsProvider && TAG_TYPES.get(tagsProvider.registry()) != type) {
+				throw new IllegalStateException("Tag providers must be registered through ProviderType::registerTag");
+            }
             known.put(type, prov);
             if (sides.contains(prov.getSide())) {
-                log.debug(DebugMarkers.DATA, "Adding provider for type: {}", id);
+                log.debug(DebugMarkers.DATA, "Adding provider for type: {}", sorted.id());
                 subProviders.put(type, prov);
             }
         }

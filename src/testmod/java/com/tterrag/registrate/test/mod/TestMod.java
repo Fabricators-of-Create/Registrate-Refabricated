@@ -1,5 +1,7 @@
 package com.tterrag.registrate.test.mod;
 
+import java.util.OptionalLong;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.tterrag.registrate.fabric.SimpleFlowableFluid;
@@ -10,12 +12,7 @@ import com.tterrag.registrate.builders.BlockBuilder;
 import com.tterrag.registrate.fabric.SimpleFlowableFluid.Properties;
 import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.util.DataIngredient;
-import com.tterrag.registrate.util.entry.BlockEntityEntry;
-import com.tterrag.registrate.util.entry.BlockEntry;
-import com.tterrag.registrate.util.entry.EntityEntry;
-import com.tterrag.registrate.util.entry.FluidEntry;
-import com.tterrag.registrate.util.entry.ItemEntry;
-import com.tterrag.registrate.util.entry.RegistryEntry;
+import com.tterrag.registrate.util.entry.*;
 import com.tterrag.registrate.util.nullness.NonnullType;
 
 import io.github.fabricators_of_create.porting_lib.data.ExistingFileHelper;
@@ -26,7 +23,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributeHandler;
 import net.minecraft.advancements.Advancement;
-import net.minecraft.advancements.FrameType;
+import net.minecraft.advancements.AdvancementType;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
@@ -37,6 +34,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.PigRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
@@ -47,14 +45,13 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.world.InteractionHand;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.SpawnPlacements;
+import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.player.Inventory;
@@ -69,10 +66,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.Enchantment.Rarity;
-import net.minecraft.world.item.enchantment.EnchantmentCategory;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.biome.FixedBiomeSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
@@ -82,11 +78,16 @@ import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
+import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.functions.LootingEnchantFunction;
+import net.minecraft.world.level.storage.loot.functions.EnchantedCountIncreaseFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
@@ -110,7 +111,7 @@ public class TestMod implements ModInitializer, DataGeneratorEntrypoint {
         }
 
         @Override
-        public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult hit) {
+        protected InteractionResult useWithoutItem(BlockState state, Level worldIn, BlockPos pos, Player player, BlockHitResult hit) {
             if (!worldIn.isClientSide) {
                 player.openMenu(new MenuProvider() {
 
@@ -171,36 +172,24 @@ public class TestMod implements ModInitializer, DataGeneratorEntrypoint {
         }
     }
 
-    private static class TestEnchantment extends Enchantment {
-
-        public TestEnchantment(Rarity rarityIn, EnchantmentCategory typeIn, EquipmentSlot... slots) {
-            super(rarityIn, typeIn, slots);
-        }
-
-        @Override
-        public int getMaxLevel() {
-            return 5;
-        }
-    }
-
     private static class TestCustomRegistryEntry {}
 
-    private static final Registrate registrate = Registrate
-            .create("testmod");
+    private static final Registrate registrate = Registrate.create("testmod");
 
-    private static final RegistryEntry<CreativeModeTab> testcreativetab = registrate.object("test_creative_mode_tab")
+    private static final RegistryEntry<CreativeModeTab, CreativeModeTab> testcreativetab = registrate.object("test_creative_mode_tab")
             .defaultCreativeTab(tab -> tab.icon(() -> new ItemStack(Items.BAKED_POTATO)))
             .register();
 
     private static final AtomicBoolean sawCallback = new AtomicBoolean();
 
-    private static final RegistryEntry<Item> testitem = registrate.object("testitem")
+    private static final ItemEntry<Item> testitem = registrate.object("testitem")
             .item(Item::new)
                 .onRegister(item -> sawCallback.set(true))
-                .properties(p -> p.food(new FoodProperties.Builder().nutrition(1).saturationMod(0.2f).build()))
+                .properties(p -> p.food(new FoodProperties.Builder().nutrition(1).saturationModifier(0.2f).build()))
                 .color(() -> () -> (stack, index) -> 0xFF0000FF)
                 .tag(ItemTags.BEDS)
-                .model((ctx, prov) -> prov.withExistingParent(ctx.getName(), new ResourceLocation("block/stone")))
+                .model((ctx, prov) -> prov.withExistingParent(ctx.getName(), ResourceLocation.withDefaultNamespace("block/stone")))
+                .tab(testcreativetab.getKey(), (ctx, modifier) -> modifier.accept(ctx))
                 .register();
 
     private static final EntityEntry<TestEntity> testduplicatename = registrate.object("testitem")
@@ -214,7 +203,7 @@ public class TestMod implements ModInitializer, DataGeneratorEntrypoint {
             .block(TestBlock::new)
                 .properties(p -> p.noOcclusion())
                 .blockstate((ctx, prov) -> prov.simpleBlock(ctx.getEntry(),
-                                prov.models().withExistingParent(ctx.getName(), new ResourceLocation("block/glass"))))
+                                prov.models().withExistingParent(ctx.getName(), ResourceLocation.withDefaultNamespace("block/glass"))))
             .addLayer(() -> () -> RenderType.cutout())
                 .transform(TestMod::applyDiamondDrop)
                 .recipe((ctx, prov) -> {
@@ -232,7 +221,7 @@ public class TestMod implements ModInitializer, DataGeneratorEntrypoint {
                 .color(() -> () -> (state, world, pos, index) -> 0xFFFF0000)
                 .item()
                     .color(() -> () -> (stack, index) -> 0xFFFF0000)
-                    .model((ctx, prov) -> prov.withExistingParent(ctx.getName(), new ResourceLocation("item/egg")))
+                    .model((ctx, prov) -> prov.withExistingParent(ctx.getName(), ResourceLocation.withDefaultNamespace("item/egg")))
                     .build()
                 .blockEntity(TestBlockEntity::new)
                     .renderer(() -> TestBlockEntityRenderer::new)
@@ -249,18 +238,18 @@ public class TestMod implements ModInitializer, DataGeneratorEntrypoint {
     private static final ItemEntry<BlockItem> testblockitem = (ItemEntry<BlockItem>) testblock.<Item, BlockItem>getSibling(Registries.ITEM);
     private static final BlockEntityEntry<ChestBlockEntity> testblockbe = BlockEntityEntry.cast(testblock.getSibling(Registries.BLOCK_ENTITY_TYPE));
     @SuppressWarnings("deprecation")
-    private static final RegistryEntry<EntityType<TestEntity>> testentity = registrate.object("testentity")
+    private static final EntityEntry<TestEntity> testentity = registrate.object("testentity")
             .entity(TestEntity::new, MobCategory.CREATURE)
             .attributes(Pig::createAttributes)
             .renderer(() -> PigRenderer::new)
-            .spawnPlacement(SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Animal::checkAnimalSpawnRules)
+            .spawnPlacement(SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Animal::checkAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.OR)
             .defaultSpawnEgg(0xFF0000, 0x00FF00)
             .loot((prov, type) -> prov.add(type, LootTable.lootTable()
                     .withPool(LootPool.lootPool()
                             .setRolls(ConstantValue.exactly(1))
                             .add(LootItem.lootTableItem(Items.DIAMOND)
                                     .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 3)))
-                                    .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0, 2)))))))
+                                    .apply(EnchantedCountIncreaseFunction.lootingMultiplier(prov.getRegistries(), UniformGenerator.between(0, 2)))))))
             .tag(EntityTypeTags.RAIDERS)
             .register();
 
@@ -284,16 +273,10 @@ public class TestMod implements ModInitializer, DataGeneratorEntrypoint {
 //                .build()
             .register();
 
-    private static final RegistryEntry<MenuType<ChestMenu>> testmenu = registrate.object("testmenu")
+    private static final MenuEntry<ChestMenu> testmenu = registrate.object("testmenu")
             .menu((type, windowId, inv) -> new ChestMenu(type, windowId, inv, new SimpleContainer(9 * 9), 9), () -> ContainerScreen::new)
             .register();
-
-    private static final RegistryEntry<TestEnchantment> testenchantment = registrate.object("testenchantment")
-            .enchantment(EnchantmentCategory.ARMOR, TestEnchantment::new)
-            .rarity(Rarity.UNCOMMON)
-            .addArmorSlots()
-            .register();
-
+    
 //    private final RegistryEntry<TestBiome> testbiome = registrate.object("testbiome")
 //            .biome(TestBiome::new)
 //            .properties(b -> b.category(Category.PLAINS)
@@ -357,7 +340,7 @@ public class TestMod implements ModInitializer, DataGeneratorEntrypoint {
 
 
     @Override
-    public void onInitialize() {
+    public void onInitialize(IEventBus eventBus) {
 
         registrate.addRawLang("testmod.custom.lang", "Test");
         registrate.addLang("tooltip", testblock.getId(), "Egg.");
@@ -367,13 +350,70 @@ public class TestMod implements ModInitializer, DataGeneratorEntrypoint {
                 .addCriterion("has_egg", InventoryChangeTrigger.TriggerInstance.hasItems(Items.EGG))
                 .display(Items.EGG,
                         adv.title(registrate.getModid(), "root", "Test Advancement"), adv.desc(registrate.getModid(), "root", "Get an egg."),
-                        new ResourceLocation("textures/gui/advancements/backgrounds/stone.png"), FrameType.TASK, true, true, false)
+                        ResourceLocation.withDefaultNamespace("textures/gui/advancements/backgrounds/stone.png"), AdvancementType.TASK, true, true, false)
                 .save(adv, registrate.getModid() + ":root");
         });
+        registrate.addDataGenerator(ProviderType.GENERIC_SERVER, provider -> provider.add(data -> {
+            // generic server side provider to generate custom dimension
+            // to teleport to this dimension use the following command
+            // /execute as @s in testmod:test_dimension run tp @s 0 64 0
+            // you can validate you are in this dimension by checking the debug screen
+            // right underneath the `Chunks[C]` and `Chunk[S]` should be the dimension name
+            var testDimensionTypeKey = ResourceKey.create(Registries.DIMENSION_TYPE, ResourceLocation.fromNamespaceAndPath("testmod", "test_dimension_type"));
+
+            return new DatapackBuiltinEntriesProvider(
+                    data.output(),
+                    data.registries(),
+                    new RegistrySetBuilder()
+                            // custom dimension type, just a simple overworld-like dimension
+                            .add(Registries.DIMENSION_TYPE, context -> context.register(
+                                    testDimensionTypeKey,
+                                    new DimensionType(
+                                            /* fixedTime */ OptionalLong.empty(),
+                                            /* hasSky */ true,
+                                            /* hasCeiling */ false,
+                                            /* ultraWarm */ false,
+                                            /* natural */ true,
+                                            /* coordinateScale */ 1D,
+                                            /* bedWords */ true,
+                                            /* respawnAnchorWorks */ false,
+                                            /* minY */ -64,
+                                            /* height */ 384,
+                                            /* localHeight */ 384,
+                                            /* infiniBurn */ BlockTags.INFINIBURN_OVERWORLD,
+                                            /* effectsLocation */ BuiltinDimensionTypes.OVERWORLD_EFFECTS,
+                                            /* ambientLight */ 0F,
+                                            new DimensionType.MonsterSettings(
+                                                    /* piglinSafe */ false,
+                                                    /* hasRaids */ true,
+                                                    /* monsterSpawnLightTest */ UniformInt.of(0, 7),
+                                                    /* monsterSpawnBlockLightLimit */ 0
+                                            )
+                                    )
+                            ))
+                            // register custom dimension for the dimension type
+                            // simple single biome (plains) dimension
+                            .add(Registries.LEVEL_STEM, context -> {
+                                var plains = context.lookup(Registries.BIOME).getOrThrow(Biomes.PLAINS);
+                                var testDimensionType = context.lookup(Registries.DIMENSION_TYPE).getOrThrow(testDimensionTypeKey);
+                                var overworldNoiseSettings = context.lookup(Registries.NOISE_SETTINGS).getOrThrow(NoiseGeneratorSettings.OVERWORLD);
+
+                                context.register(
+                                        ResourceKey.create(Registries.LEVEL_STEM, ResourceLocation.fromNamespaceAndPath("testmod", "test_dimension")),
+                                        new LevelStem(
+                                                testDimensionType,
+                                                new NoiseBasedChunkGenerator(
+                                                        new FixedBiomeSource(plains),
+                                                        overworldNoiseSettings
+                                                )
+                                        )
+                                );
+                            }),
+                    Set.of("testmod")
+            );
+        }));
 
         registrate.register();
-
-        ServerLifecycleEvents.SERVER_STARTED.register(TestMod::afterServerStart);
 
         if (!sawCallback.get()) {
             throw new IllegalStateException("Register callback not fired!");
@@ -384,9 +424,6 @@ public class TestMod implements ModInitializer, DataGeneratorEntrypoint {
         testblockitem.is(Items.STONE);
         testblockbe.is(BlockEntityType.CHEST);
         // testbiome.is(Feature.BAMBOO); // should not compile
-    }
-
-    private static void afterServerStart(MinecraftServer server) {
     }
 
     @Override

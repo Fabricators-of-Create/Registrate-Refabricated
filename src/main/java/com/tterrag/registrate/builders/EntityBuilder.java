@@ -169,7 +169,7 @@ public class EntityBuilder<T extends Entity, P> extends AbstractBuilder<EntityTy
      *             When called more than once
      */
     @SuppressWarnings("unchecked")
-    public EntityBuilder<T, P> spawnPlacement(SpawnPlacements.Type type, Heightmap.Types heightmap, SpawnPredicate<T> predicate) {
+    public EntityBuilder<T, P> spawnPlacement(SpawnPlacementType type, Heightmap.Types heightmap, SpawnPredicate<T> predicate, RegisterSpawnPlacementsEvent.Operation operation) {
         if (spawnConfigured) {
             throw new IllegalStateException("Cannot configure spawn placement more than once");
         }
@@ -223,8 +223,9 @@ public class EntityBuilder<T extends Entity, P> extends AbstractBuilder<EntityTy
     @SuppressWarnings({"unchecked" })
     @Deprecated
     public ItemBuilder<? extends SpawnEggItem, EntityBuilder<T, P>> spawnEgg(int primaryColor, int secondaryColor) {
-        return getOwner().item(this, getName() + "_spawn_egg", p -> new SpawnEggItem((EntityType<? extends Mob>) get().get(), primaryColor, secondaryColor, p)).tab(CreativeModeTabs.SPAWN_EGGS)
-                .model((ctx, prov) -> prov.withExistingParent(ctx.getName(), new ResourceLocation("item/template_spawn_egg")));
+        var sup = asSupplier();
+        return getOwner().item(this, getName() + "_spawn_egg", p -> new DeferredSpawnEggItem((Supplier<EntityType<? extends Mob>>) (Supplier) sup, primaryColor, secondaryColor, p)).tab(CreativeModeTabs.SPAWN_EGGS)
+                .model((ctx, prov) -> prov.withExistingParent(ctx.getName(), ResourceLocation.withDefaultNamespace("item/template_spawn_egg")));
     }
 
     /**
@@ -282,7 +283,7 @@ public class EntityBuilder<T extends Entity, P> extends AbstractBuilder<EntityTy
     protected void injectSpawnEggType(EntityType<T> entry) {}
 
     @Override
-    protected RegistryEntry<EntityType<T>> createEntryWrapper(RegistryObject<EntityType<T>> delegate) {
+    protected RegistryEntry<EntityType<?>, EntityType<T>> createEntryWrapper(DeferredHolder<EntityType<?>, EntityType<T>> delegate) {
         return new EntityEntry<>(getOwner(), delegate);
     }
 

@@ -15,16 +15,22 @@ public final class CreativeModeTabModifier implements CreativeModeTab.Output {
     private final Supplier<FeatureFlagSet> flags;
     private final BooleanSupplier hasPermissions;
     private final BiConsumer<ItemStack, CreativeModeTab.TabVisibility> acceptFunc;
+    private final Supplier<CreativeModeTab.ItemDisplayParameters> parameters;
 
     @ApiStatus.Internal
-    public CreativeModeTabModifier(Supplier<FeatureFlagSet> flags, BooleanSupplier hasPermissions, BiConsumer<ItemStack, CreativeModeTab.TabVisibility> acceptFunc) {
+    public CreativeModeTabModifier(Supplier<FeatureFlagSet> flags, BooleanSupplier hasPermissions, BiConsumer<ItemStack, CreativeModeTab.TabVisibility> acceptFunc, Supplier<CreativeModeTab.ItemDisplayParameters> parameters) {
         this.flags = flags;
         this.hasPermissions = hasPermissions;
         this.acceptFunc = acceptFunc;
-    }
+		this.parameters = parameters;
+	}
 
     public FeatureFlagSet getFlags() {
         return flags.get();
+    }
+
+    public CreativeModeTab.ItemDisplayParameters getParameters(){
+        return parameters.get();
     }
 
     public boolean hasPermissions() {

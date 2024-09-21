@@ -5,9 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": [
-              "minecraft:egg"
-            ]
+            "items": "minecraft:egg"
           }
         ]
       },
@@ -22,14 +20,13 @@
   },
   "requirements": [
     [
-      "has_egg",
-      "has_the_recipe"
+      "has_the_recipe",
+      "has_egg"
     ]
   ],
   "rewards": {
     "recipes": [
       "testmod:testblock"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

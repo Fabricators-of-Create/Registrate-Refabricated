@@ -5,9 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": [
-              "testmod:testblock"
-            ]
+            "items": "testmod:testblock"
           }
         ]
       },
@@ -22,14 +20,13 @@
   },
   "requirements": [
     [
-      "has_testblock",
-      "has_the_recipe"
+      "has_the_recipe",
+      "has_testblock"
     ]
   ],
   "rewards": {
     "recipes": [
       "testmod:diamond_block_from_testblock_smoking"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

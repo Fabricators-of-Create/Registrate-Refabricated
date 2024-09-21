@@ -5,7 +5,9 @@ import java.util.function.Consumer;
 import com.tterrag.registrate.AbstractRegistrate;
 
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -18,9 +20,9 @@ import com.tterrag.registrate.fabric.RegistryObject;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import org.jetbrains.annotations.Nullable;
 
-public class MenuEntry<T extends AbstractContainerMenu> extends RegistryEntry<MenuType<T>> {
+public class MenuEntry<T extends AbstractContainerMenu> extends RegistryEntry<MenuType<?>, MenuType<T>> {
 
-    public MenuEntry(AbstractRegistrate<?> owner, RegistryObject<MenuType<T>> delegate) {
+    public MenuEntry(AbstractRegistrate<?> owner, DeferredHolder<MenuType<?>, MenuType<T>> delegate) {
         super(owner, delegate);
     }
 
@@ -36,7 +38,7 @@ public class MenuEntry<T extends AbstractContainerMenu> extends RegistryEntry<Me
         open(player, displayName, asProvider());
     }
 
-    public void open(ServerPlayer player, Component displayName, Consumer<FriendlyByteBuf> extraData) {
+    public void open(ServerPlayer player, Component displayName, Consumer<RegistryFriendlyByteBuf> extraData) {
         open(player, displayName, asProvider(), extraData);
     }
 
@@ -44,7 +46,7 @@ public class MenuEntry<T extends AbstractContainerMenu> extends RegistryEntry<Me
         player.openMenu(new SimpleMenuProvider(provider, displayName));
     }
 
-    public void open(ServerPlayer player, Component displayName, MenuConstructor provider, Consumer<FriendlyByteBuf> extraData) {
+    public void open(ServerPlayer player, Component displayName, MenuConstructor provider, Consumer<RegistryFriendlyByteBuf> extraData) {
         player.openMenu(new ExtendedScreenHandlerFactory() {
             @Override
             public void writeScreenOpeningData(ServerPlayer serverPlayer, FriendlyByteBuf friendlyByteBuf) {

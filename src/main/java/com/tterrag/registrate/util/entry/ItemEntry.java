@@ -6,13 +6,13 @@ import net.minecraft.world.item.Item;
 
 import com.tterrag.registrate.fabric.RegistryObject;
 
-public class ItemEntry<T extends Item> extends ItemProviderEntry<T> {
+public class ItemEntry<T extends Item> extends ItemProviderEntry<Item, T> {
 
-    public ItemEntry(AbstractRegistrate<?> owner, RegistryObject<T> delegate) {
+    public ItemEntry(AbstractRegistrate<?> owner, DeferredHolder<Item, T> delegate) {
         super(owner, delegate);
     }
     
-    public static <T extends Item> ItemEntry<T> cast(RegistryEntry<T> entry) {
+    public static <T extends Item> ItemEntry<T> cast(RegistryEntry<Item, T> entry) {
         return RegistryEntry.cast(ItemEntry.class, entry);
     }
 }

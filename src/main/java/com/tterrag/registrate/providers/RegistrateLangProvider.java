@@ -76,8 +76,8 @@ public class RegistrateLangProvider extends BaseLangProvider implements Registra
     }
 
     @SuppressWarnings("unchecked")
-    public <T> String getAutomaticName(NonNullSupplier<? extends T> sup, ResourceKey<Registry<T>> registry) {
-        return toEnglishName(((Registry<Registry<T>>) BuiltInRegistries.REGISTRY).get(registry).getKey(sup.get()).getPath());
+    public <T> String getAutomaticName(NonNullSupplier<? extends T> sup, ResourceKey<? extends Registry<T>> registry) {
+        return toEnglishName(((Registry<Registry<T>>) BuiltInRegistries.REGISTRY).get(registry.location()).getKey(sup.get()).getPath());
     }
 
     public void addBlock(NonNullSupplier<? extends Block> block) {

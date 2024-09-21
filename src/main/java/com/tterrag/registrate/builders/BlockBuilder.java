@@ -108,11 +108,11 @@ public class BlockBuilder<T extends Block, P> extends AbstractBuilder<Block, T, 
      * Replace the initial state of the block properties, without replacing or removing any modifications done via {@link #properties(NonNullUnaryOperator)}.
      * 
      * @param block
-     *            The block to create the initial properties from (via {@link Block.Properties#copy(BlockBehaviour)})
+     *            The block to create the initial properties from (via {@link Block.Properties#ofFullCopy(BlockBehaviour)})
      * @return this {@link BlockBuilder}
      */
     public BlockBuilder<T, P> initialProperties(NonNullSupplier<? extends Block> block) {
-        initialProperties = () -> BlockBehaviour.Properties.copy(block.get());
+        initialProperties = () -> BlockBehaviour.Properties.ofFullCopy(block.get());
         return this;
     }
 
@@ -163,6 +163,7 @@ public class BlockBuilder<T extends Block, P> extends AbstractBuilder<Block, T, 
      * @return the {@link ItemBuilder} for the {@link BlockItem}
      */
     public <I extends Item> ItemBuilder<I, BlockBuilder<T, P>> item(NonNullBiFunction<? super T, Item.Properties, ? extends I> factory) {
+        final var sup = asSupplier();
         return getOwner().<I, BlockBuilder<T, P>> item(this, getName(), p -> factory.apply(getEntry(), p))
                 .setData(ProviderType.LANG, NonNullBiConsumer.noop()) // FIXME Need a beetter API for "unsetting" providers
                 .model((ctx, prov) -> {
@@ -176,7 +177,7 @@ public class BlockBuilder<T extends Block, P> extends AbstractBuilder<Block, T, 
                     if (model.isPresent()) {
                         prov.withExistingParent(ctx.getName(), model.get());
                     } else {
-                        prov.blockItem(asSupplier());
+                        prov.blockItem(sup);
                     }
                 });
     }
@@ -314,6 +315,33 @@ public class BlockBuilder<T extends Block, P> extends AbstractBuilder<Block, T, 
         return setData(ProviderType.RECIPE, cons);
     }
 
+    @Nullable
+    private NonNullSupplier<Supplier<IClientBlockExtensions>> clientExtension;
+
+    /**
+     * Register a client extension for this block. The {@link IClientBlockExtensions} instance can be shared across many items.
+     *
+     * @param clientExtension
+     *            The client extension to register for this block
+     * @return this {@link BlockBuilder}
+     */
+    public BlockBuilder<T, P> clientExtension(NonNullSupplier<Supplier<IClientBlockExtensions>> clientExtension) {
+        if (this.clientExtension == null) {
+            RegistrateDistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> this::registerClientExtension);
+        }
+        this.clientExtension = clientExtension;
+        return this;
+    }
+
+    protected void registerClientExtension() {
+        OneTimeEventReceiver.addModListener(getOwner(), RegisterClientExtensionsEvent.class, e -> {
+            NonNullSupplier<Supplier<IClientBlockExtensions>> clientExtension = this.clientExtension;
+            if (clientExtension != null) {
+                e.registerBlock(clientExtension.get().get(), getEntry());
+            }
+        });
+    }
+
     /**
      * Assign {@link TagKey}{@code s} to this block. Multiple calls will add additional tags.
      * 
@@ -332,12 +360,12 @@ public class BlockBuilder<T extends Block, P> extends AbstractBuilder<Block, T, 
         properties = propertiesCallback.apply(properties);
         return factory.apply(properties);
     }
-    
+
     @Override
-    protected RegistryEntry<T> createEntryWrapper(RegistryObject<T> delegate) {
+    protected RegistryEntry<Block, T> createEntryWrapper(DeferredHolder<Block, T> delegate) {
         return new BlockEntry<>(getOwner(), delegate);
     }
-    
+
     @Override
     public BlockEntry<T> register() {
         return (BlockEntry<T>) super.register();

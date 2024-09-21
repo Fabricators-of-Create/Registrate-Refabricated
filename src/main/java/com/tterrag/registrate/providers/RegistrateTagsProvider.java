@@ -14,8 +14,13 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 
-public interface RegistrateTagsProvider<T> extends RegistrateProvider {
+public interface RegistrateTagsProvider<T> extends RegistrateLookupFillerProvider {
+
     FabricTagProvider<T>.FabricTagBuilder addTag(TagKey<T> tag);
+
+    CompletableFuture<TagsProvider.TagLookup<T>> contentsGetter();
+
+	ResourceKey<? extends Registry<T>> registry();
 
     class Impl<T> extends FabricTagProvider<T> implements RegistrateTagsProvider<T> {
         private final AbstractRegistrate<?> owner;
@@ -49,7 +54,18 @@ public interface RegistrateTagsProvider<T> extends RegistrateProvider {
         public FabricTagProvider<T>.FabricTagBuilder addTag(TagKey<T> tag) {
             return super.getOrCreateTagBuilder(tag);
         }
-    }
+
+        @Override
+        public CompletableFuture<HolderLookup.Provider> getFilledProvider() {
+            return createContentsProvider();
+        }
+
+		@Override
+		public ResourceKey<? extends Registry<T>> registry() {
+			return registryKey;
+		}
+
+	}
 
     class IntrinsicImpl<T> extends FabricTagProvider<T> implements RegistrateTagsProvider<T> {
         private final AbstractRegistrate<?> owner;
@@ -83,5 +99,16 @@ public interface RegistrateTagsProvider<T> extends RegistrateProvider {
         public FabricTagProvider<T>.FabricTagBuilder addTag(TagKey<T> tag) {
             return super.getOrCreateTagBuilder(tag);
         }
-    }
+
+        @Override
+        public CompletableFuture<HolderLookup.Provider> getFilledProvider() {
+            return createContentsProvider();
+        }
+
+		@Override
+		public ResourceKey<? extends Registry<T>> registry() {
+			return registryKey;
+		}
+
+	}
 }

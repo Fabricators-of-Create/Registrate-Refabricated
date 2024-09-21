@@ -21,26 +21,22 @@ version = version.replace("<patch>", patch)
 repositories {
     mavenLocal()
     maven { url = "https://maven.parchmentmc.org" }
-    maven { url = "https://maven.quiltmc.org/repository/release" }
-    maven { url = "https://repo.maven.apache.org/maven2" }
     maven { url = "https://mvn.devos.one/snapshots" }
 }
 
 dependencies {
     minecraft("com.mojang:minecraft:${project.minecraft_version}")
     mappings(loom.layered {
-        it.mappings("org.quiltmc:quilt-mappings:${project.minecraft_version}+build.${project.qm_version}:intermediary-v2")
         it.officialMojangMappings { nameSyntheticMembers = false }
+        it.parchment("org.parchmentmc.data:parchment-$parchment_minecraft_version:$parchment_version@zip")
     })
     modImplementation("net.fabricmc:fabric-loader:${project.loader_version}")
 
     modImplementation("net.fabricmc.fabric-api:fabric-api:${project.fabric_version}")
     modApi(include(fabricApi.module("fabric-data-generation-api-v1", project.fabric_version))) // include datagen api
     modApi(include("io.github.fabricators_of_create.Porting-Lib:tags:${project.porting_lib_version}")) { exclude(group: "io.vram") }
-    modApi(include("io.github.fabricators_of_create.Porting-Lib:model_generators:${project.porting_lib_version}")) { exclude(group: "io.vram") }
+    //modApi(include("io.github.fabricators_of_create.Porting-Lib:model_generators:${project.porting_lib_version}")) { exclude(group: "io.vram") }
     modApi(include("io.github.fabricators_of_create.Porting-Lib:data:${project.porting_lib_version}")) { exclude(group: "io.vram") }
-    implementation(include("io.github.llamalad7:mixinextras-fabric:${project.mixin_extras_version}"))
-    annotationProcessor("io.github.llamalad7:mixinextras-fabric:${project.mixin_extras_version}")
 
     compileOnly("org.projectlombok:lombok:1.18.22")
 

@@ -15,6 +15,7 @@ import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.flag.FeatureFlags;
@@ -33,7 +34,7 @@ public class MenuBuilder<T extends AbstractContainerMenu, S extends Screen & Men
 
     public interface ForgeMenuFactory<T extends AbstractContainerMenu> {
 
-        T create(MenuType<T> type, int windowId, Inventory inv, @Nullable FriendlyByteBuf buffer);
+        T create(MenuType<T> type, int windowId, Inventory inv, @Nullable RegistryFriendlyByteBuf buffer);
     }
     
     public interface ScreenFactory<M extends AbstractContainerMenu, T extends Screen & MenuAccess<M>> {
@@ -75,7 +76,7 @@ public class MenuBuilder<T extends AbstractContainerMenu, S extends Screen & Men
     }
 
     @Override
-    protected RegistryEntry<MenuType<T>> createEntryWrapper(RegistryObject<MenuType<T>> delegate) {
+    protected RegistryEntry<MenuType<?>, MenuType<T>> createEntryWrapper(DeferredHolder<MenuType<?>, MenuType<T>> delegate) {
         return new MenuEntry<>(getOwner(), delegate);
     }
 

@@ -1,16 +1,20 @@
 package com.tterrag.registrate.util;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ObjectArrays;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
 
 import lombok.Getter;
 import lombok.experimental.Delegate;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.Registry;
@@ -31,54 +35,47 @@ import net.minecraft.world.level.ItemLike;
  * <p>
  * <strong>This class should not be used for any purpose other than data generation</strong>, it will throw an exception if it is serialized to a packet buffer.
  */
-public final class DataIngredient extends Ingredient {
-
+public final class DataIngredient {
     private interface Excludes {
 
-//        IIngredientSerializer<DataIngredient> getSerializer();
-
         void toNetwork(FriendlyByteBuf buffer);
-        
+
         boolean checkInvalidation();
-        
+
         void markValid();
-        
+
         boolean isVanilla();
+
+        ItemStack[] getItems();
+
+        Ingredient.Value[] getValues();
     }
 
     @Delegate(excludes = Excludes.class)
     private final Ingredient parent;
     @Getter
     private final ResourceLocation id;
-    private final Function<RegistrateRecipeProvider, InventoryChangeTrigger.TriggerInstance> criteriaFactory;
+    private final Function<RegistrateRecipeProvider, Criterion<InventoryChangeTrigger.TriggerInstance>> criteriaFactory;
 
     private DataIngredient(Ingredient parent, ItemLike item) {
-        super(Stream.empty());
         this.parent = parent;
         this.id = BuiltInRegistries.ITEM.getKey(item.asItem());
         this.criteriaFactory = prov -> RegistrateRecipeProvider.has(item);
     }
     
     private DataIngredient(Ingredient parent, TagKey<Item> tag) {
-        super(Stream.empty());
         this.parent = parent;
         this.id = tag.location();
         this.criteriaFactory = prov -> RegistrateRecipeProvider.has(tag);
     }
     
     private DataIngredient(Ingredient parent, ResourceLocation id, ItemPredicate... predicates) {
-        super(Stream.empty());
         this.parent = parent;
         this.id = id;
         this.criteriaFactory = prov -> RegistrateRecipeProvider.inventoryTrigger(predicates);
     }
 
-//    @Override
-//    public IIngredientSerializer<DataIngredient> getSerializer() {
-//        throw new UnsupportedOperationException("DataIngredient should only be used for data generation!");
-//    }
-    
-    public InventoryChangeTrigger.TriggerInstance getCritereon(RegistrateRecipeProvider prov) {
+    public Criterion<InventoryChangeTrigger.TriggerInstance> getCriterion(RegistrateRecipeProvider prov) {
         return criteriaFactory.apply(prov);
     }
     
@@ -111,5 +108,9 @@ public final class DataIngredient extends Ingredient {
     
     public static DataIngredient ingredient(Ingredient parent, ResourceLocation id, ItemPredicate... criteria) {
         return new DataIngredient(parent, id, criteria);
+    }
+
+    public Ingredient toVanilla() {
+        return parent;
     }
 }

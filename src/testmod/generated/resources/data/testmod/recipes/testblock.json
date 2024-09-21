@@ -15,7 +15,7 @@
     "DDD"
   ],
   "result": {
-    "item": "testmod:testblock"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "testmod:testblock"
+  }
 }

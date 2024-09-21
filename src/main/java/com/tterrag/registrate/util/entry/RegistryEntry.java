@@ -1,25 +1,28 @@
 package com.tterrag.registrate.util.entry;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 import com.tterrag.registrate.AbstractRegistrate;
 import com.tterrag.registrate.fabric.RegistryObject;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
-import com.tterrag.registrate.util.nullness.NonnullType;
 
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Delegate;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
+<<<<<<< HEAD
 import org.jetbrains.annotations.Nullable;
+=======
+import net.neoforged.neoforge.registries.DeferredHolder;
+>>>>>>> upstream/1.21/dev
 
 /**
- * Wraps a {@link RegistryObject}, providing a cleaner API with null-safe access, and registrate-specific extensions such as {@link #getSibling(ResourceKey)}.
+ * Wraps a {@link net.neoforged.neoforge.registries.DeferredHolder}, providing a cleaner API with null-safe access, and registrate-specific extensions such as {@link #getSibling(ResourceKey)}.
  *
- * @param <T>
+ * @param <S>
  *            The type of the entry
  */
+<<<<<<< HEAD
 @EqualsAndHashCode(of = "delegate")
 public class RegistryEntry<T> implements NonNullSupplier<T> {
 
@@ -40,20 +43,21 @@ public class RegistryEntry<T> implements NonNullSupplier<T> {
         public void updateReference(Registry<? extends T> registry);
     }
 
+=======
+public class RegistryEntry<R, S extends R> extends DeferredHolder<R, S> implements NonNullSupplier<S> {
+>>>>>>> upstream/1.21/dev
     private final AbstractRegistrate<?> owner;
-    @Delegate(excludes = Exclusions.class)
-    private final @Nullable RegistryObject<T> delegate;
 
     @SuppressWarnings("unused")
-    public RegistryEntry(AbstractRegistrate<?> owner, RegistryObject<T> delegate) {
-        if (EMPTY != null && owner == null)
+    public RegistryEntry(AbstractRegistrate<?> owner, DeferredHolder<R, S> key) {
+        super(key.getKey());
+
+        if (owner == null)
             throw new NullPointerException("Owner must not be null");
-        if (EMPTY != null && delegate == null)
-            throw new NullPointerException("Delegate must not be null");
         this.owner = owner;
-        this.delegate = delegate;
     }
 
+<<<<<<< HEAD
     /**
      * Update the underlying entry manually from the given registry.
      *
@@ -96,6 +100,18 @@ public class RegistryEntry<T> implements NonNullSupplier<T> {
 
     /**
      * If an entry is present, and the entry matches the given predicate, return an {@link RegistryEntry} describing the value, otherwise return an empty {@link RegistryEntry}.
+=======
+    public <X, Y extends X> RegistryEntry<X, Y> getSibling(ResourceKey<? extends Registry<X>> registryType) {
+        return owner.get(getId().getPath(), registryType);
+    }
+
+    public <X, Y extends X> RegistryEntry<X,Y> getSibling(Registry<X> registry) {
+        return getSibling(registry.key());
+    }
+
+    /**
+     * If an entry is present, and the entry matches the given predicate, return an {@link Optional<RegistryEntry>} describing the value, otherwise return an empty {@link Optional}.
+>>>>>>> upstream/1.21/dev
      *
      * @param predicate
      *            a {@link Predicate predicate} to apply to the entry, if present
@@ -103,20 +119,20 @@ public class RegistryEntry<T> implements NonNullSupplier<T> {
      * @throws NullPointerException
      *             if the predicate is null
      */
-    public RegistryEntry<T> filter(Predicate<? super T> predicate) {
+    public Optional<RegistryEntry<R, S>> filter(Predicate<R> predicate) {
         Objects.requireNonNull(predicate);
-        if (!isPresent() || predicate.test(get())) {
-            return this;
+        if (predicate.test(get())) {
+            return Optional.of(this);
         }
-        return empty();
+        return Optional.empty();
     }
 
-    public <R> boolean is(R entry) {
+    public <X> boolean is(X entry) {
         return get() == entry;
     }
 
     @SuppressWarnings("unchecked")
-    protected static <E extends RegistryEntry<?>> E cast(Class<? super E> clazz, RegistryEntry<?> entry) {
+    protected static <E extends RegistryEntry<?, ?>> E cast(Class<? super E> clazz, RegistryEntry<?, ?> entry) {
         if (clazz.isInstance(entry)) {
             return (E) entry;
         }
