@@ -2,9 +2,8 @@ package com.tterrag.registrate.util.entry;
 
 import com.tterrag.registrate.AbstractRegistrate;
 
+import com.tterrag.registrate.fabric.DeferredHolder;
 import net.minecraft.world.item.Item;
-
-import com.tterrag.registrate.fabric.RegistryObject;
 
 public class ItemEntry<T extends Item> extends ItemProviderEntry<Item, T> {
 

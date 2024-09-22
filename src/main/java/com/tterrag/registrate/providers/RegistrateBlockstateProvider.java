@@ -6,9 +6,9 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.world.level.block.Block;
 
 import io.github.fabricators_of_create.porting_lib.data.ExistingFileHelper;
-import io.github.fabricators_of_create.porting_lib.models.generators.block.BlockStateProvider;
-import io.github.fabricators_of_create.porting_lib.models.generators.block.MultiPartBlockStateBuilder;
-import io.github.fabricators_of_create.porting_lib.models.generators.block.VariantBlockStateBuilder;
+import io.github.fabricators_of_create.porting_lib.models.generators.BlockStateProvider;
+import io.github.fabricators_of_create.porting_lib.models.generators.MultiPartBlockStateBuilder;
+import io.github.fabricators_of_create.porting_lib.models.generators.VariantBlockStateBuilder;
 import net.fabricmc.api.EnvType;
 
 import java.util.Optional;

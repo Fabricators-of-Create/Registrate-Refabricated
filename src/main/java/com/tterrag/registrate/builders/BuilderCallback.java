@@ -1,8 +1,7 @@
 package com.tterrag.registrate.builders;
 
 import com.tterrag.registrate.AbstractRegistrate;
-import com.tterrag.registrate.fabric.RegistryObject;
-import com.tterrag.registrate.fabric.RegistryUtil;
+import com.tterrag.registrate.fabric.DeferredHolder;
 import com.tterrag.registrate.util.entry.RegistryEntry;
 import com.tterrag.registrate.util.nullness.NonNullFunction;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;

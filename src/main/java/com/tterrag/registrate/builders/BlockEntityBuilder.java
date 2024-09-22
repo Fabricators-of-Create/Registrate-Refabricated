@@ -4,19 +4,16 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import com.tterrag.registrate.AbstractRegistrate;
+import com.tterrag.registrate.fabric.DeferredHolder;
 import com.tterrag.registrate.fabric.EnvExecutor;
-import com.tterrag.registrate.fabric.RegistryObject;
 import com.tterrag.registrate.mixin.accessor.BlockEntityRenderersAccessor;
-import com.tterrag.registrate.util.RegistrateDistExecutor;
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
 import com.tterrag.registrate.util.entry.RegistryEntry;
 import com.tterrag.registrate.util.nullness.NonNullFunction;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
 import net.fabricmc.api.EnvType;
-import net.minecraft.core.Registry;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;

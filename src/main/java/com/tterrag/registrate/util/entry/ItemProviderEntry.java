@@ -1,7 +1,7 @@
 package com.tterrag.registrate.util.entry;
 
 import com.tterrag.registrate.AbstractRegistrate;
-import com.tterrag.registrate.fabric.RegistryObject;
+import com.tterrag.registrate.fabric.DeferredHolder;
 
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;

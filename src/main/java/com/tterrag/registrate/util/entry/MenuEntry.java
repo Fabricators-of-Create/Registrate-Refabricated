@@ -4,10 +4,10 @@ import java.util.function.Consumer;
 
 import com.tterrag.registrate.AbstractRegistrate;
 
+import com.tterrag.registrate.fabric.DeferredHolder;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -16,7 +16,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuConstructor;
 import net.minecraft.world.inventory.MenuType;
 
-import com.tterrag.registrate.fabric.RegistryObject;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import org.jetbrains.annotations.Nullable;
 

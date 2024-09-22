@@ -4,13 +4,13 @@ import java.util.Optional;
 
 import com.tterrag.registrate.AbstractRegistrate;
 
+import com.tterrag.registrate.fabric.DeferredHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-import com.tterrag.registrate.fabric.RegistryObject;
 import org.jetbrains.annotations.Nullable;
 
 public class BlockEntityEntry<T extends BlockEntity> extends RegistryEntry<BlockEntityType<?>, BlockEntityType<T>> {

@@ -1,11 +1,6 @@
 package com.tterrag.registrate;
 
 import lombok.extern.log4j.Log4j2;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.ModList;
-
-import java.util.Optional;
 
 @Log4j2
 public class Registrate extends AbstractRegistrate<Registrate> {

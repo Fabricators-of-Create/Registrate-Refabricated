@@ -18,7 +18,7 @@ import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.world.inventory.InventoryMenu;
 
 public class FluidSpriteReloadListener implements IdentifiableResourceReloadListener, ResourceManagerReloadListener {
-	public static final ResourceLocation ID = new ResourceLocation("registrate", "fluid_sprites");
+	public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("registrate", "fluid_sprites");
 	public static final FluidSpriteReloadListener INSTANCE = new FluidSpriteReloadListener();
 
 	private final Multimap<ResourceLocation, Consumer<TextureAtlasSprite>> callbacks = HashMultimap.create();

@@ -3,8 +3,6 @@ package com.tterrag.registrate.builders;
 import java.util.function.Function;
 
 import com.tterrag.registrate.AbstractRegistrate;
-import com.tterrag.registrate.fabric.RegistryObject;
-import com.tterrag.registrate.fabric.RegistryUtil;
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.providers.RegistrateProvider;
@@ -138,15 +136,6 @@ public interface Builder<R, T extends R, P, S extends Builder<R, T, P, S>> exten
     }
 
     /**
-     * Add data map associated with this builder
-     */
-    default <D> S dataMap(DataMapType<R, D> type, D val) {
-        getOwner().addDataGenerator(ProviderType.DATA_MAP, e -> e.builder(type)
-                .add(DataGenContext.from(this).getId(), val, false));
-        return (S) this;
-    }
-
-    /**
      * Add a callback to be invoked when this entry is registered. Can be called multiple times to add multiple callbacks.
      * <p>
      * Builders which have had this method used on them (or another method which calls this one, such as {@link EntityBuilder#spawnEgg(int, int)}), <strong>must</strong> be registered, via
@@ -216,7 +205,7 @@ public interface Builder<R, T extends R, P, S extends Builder<R, T, P, S>> exten
     }
 
     /**
-     * Register the entry and return the parent object. The {@link net.neoforged.neoforge.registries.DeferredHolder} will be created but not returned. It can be retrieved later with {@link AbstractRegistrate#get(ResourceKey)} or
+     * Register the entry and return the parent object. The {@link com.tterrag.registrate.fabric.DeferredHolder} will be created but not returned. It can be retrieved later with {@link AbstractRegistrate#get(ResourceKey)} or
      * {@link AbstractRegistrate#get(String, ResourceKey)}.
      * 
      * @return the parent object

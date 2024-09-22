@@ -6,10 +6,11 @@ import java.util.function.Supplier;
 
 import com.google.common.collect.Maps;
 import com.tterrag.registrate.AbstractRegistrate;
+import com.tterrag.registrate.fabric.DeferredHolder;
 import com.tterrag.registrate.fabric.EnvExecutor;
-import com.tterrag.registrate.fabric.RegistryObject;
 import com.tterrag.registrate.providers.*;
 import com.tterrag.registrate.util.CreativeModeTabModifier;
+import com.tterrag.registrate.util.RegistrateDistExecutor;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import com.tterrag.registrate.util.entry.RegistryEntry;
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
@@ -18,9 +19,8 @@ import com.tterrag.registrate.util.nullness.NonNullSupplier;
 import com.tterrag.registrate.util.nullness.NonNullUnaryOperator;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
-import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
-import net.minecraft.core.Registry;
-import net.minecraft.core.registries.Registries;
+import net.fabricmc.fabric.api.registry.CompostingChanceRegistry;
+import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
@@ -72,7 +72,7 @@ public class ItemBuilder<T extends Item, P> extends AbstractBuilder<Item, T, P, 
 
     private final NonNullFunction<Item.Properties, T> factory;
 
-    private NonNullSupplier<Item.Properties> initialProperties = FabricItemSettings::new;
+    private NonNullSupplier<Item.Properties> initialProperties = Item.Properties::new;
     private NonNullFunction<Item.Properties, Item.Properties> propertiesCallback = NonNullUnaryOperator.identity();
 
     @Nullable
@@ -266,7 +266,8 @@ public class ItemBuilder<T extends Item, P> extends AbstractBuilder<Item, T, P, 
      * @param tick time in ticks for this item to burn in furnace.
      */
     public ItemBuilder<T, P> burnTime(int tick) {
-        return dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(tick));
+        FuelRegistry.INSTANCE.add(get().get(), tick);
+        return this;
     }
 
     /**
@@ -274,34 +275,8 @@ public class ItemBuilder<T extends Item, P> extends AbstractBuilder<Item, T, P, 
      * @param chance chance for composter to increase one level when composting this item.
      */
     public ItemBuilder<T, P> compostable(float chance) {
-        return dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(chance));
-    }
-
-    @Nullable
-    private NonNullSupplier<Supplier<IClientItemExtensions>> clientExtension;
-
-    /**
-     * Register a client extension for this item. The {@link IClientItemExtensions} instance can be shared across many items.
-     *
-     * @param clientExtension
-     *            The client extension to register for this item
-     * @return this {@link ItemBuilder}
-     */
-    public ItemBuilder<T, P> clientExtension(NonNullSupplier<Supplier<IClientItemExtensions>> clientExtension) {
-        if (this.clientExtension == null) {
-            RegistrateDistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> this::registerClientExtension);
-        }
-        this.clientExtension = clientExtension;
+        CompostingChanceRegistry.INSTANCE.add(get().get(), chance);
         return this;
-    }
-
-    protected void registerClientExtension() {
-        OneTimeEventReceiver.addModListener(getOwner(), RegisterClientExtensionsEvent.class, e -> {
-            NonNullSupplier<Supplier<IClientItemExtensions>> clientExtension = this.clientExtension;
-            if (clientExtension != null) {
-                e.registerItem(clientExtension.get().get(), getEntry());
-            }
-        });
     }
 
     /**

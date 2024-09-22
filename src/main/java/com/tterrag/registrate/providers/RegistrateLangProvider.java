@@ -10,6 +10,7 @@ import io.github.fabricators_of_create.porting_lib.data.LanguageProvider;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.api.EnvType;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.CachedOutput;
@@ -38,8 +39,8 @@ import net.minecraft.world.level.block.Block;
 public class RegistrateLangProvider extends BaseLangProvider implements RegistrateProvider {
 
     private static class AccessibleLanguageProvider extends BaseLangProvider {
-        public AccessibleLanguageProvider(FabricDataOutput output, String locale) {
-            super(output, locale);
+        public AccessibleLanguageProvider(FabricDataOutput output, String locale, CompletableFuture<HolderLookup.Provider> registryLookup) {
+            super(output, locale, registryLookup);
         }
     }
 
@@ -47,10 +48,10 @@ public class RegistrateLangProvider extends BaseLangProvider implements Registra
 
     private final AccessibleLanguageProvider upsideDown;
 
-    public RegistrateLangProvider(AbstractRegistrate<?> owner, FabricDataOutput packOutput) {
-        super(packOutput, "en_us");
+    public RegistrateLangProvider(AbstractRegistrate<?> owner, FabricDataOutput packOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+        super(packOutput, "en_us", registryLookup);
         this.owner = owner;
-        this.upsideDown = new AccessibleLanguageProvider(packOutput, "en_ud");
+        this.upsideDown = new AccessibleLanguageProvider(packOutput, "en_ud", registryLookup);
     }
 
     @Override
@@ -64,9 +65,9 @@ public class RegistrateLangProvider extends BaseLangProvider implements Registra
     }
 
     @Override
-    public void generateTranslations(TranslationBuilder translationBuilder) {
+    public void generateTranslations(HolderLookup.Provider registryLookup, TranslationBuilder translationBuilder) {
         owner.genData(ProviderType.LANG, this);
-        super.generateTranslations(translationBuilder);
+        super.generateTranslations(registryLookup, translationBuilder);
     }
 
     public static final String toEnglishName(String internalName) {
@@ -205,14 +206,6 @@ public class RegistrateLangProvider extends BaseLangProvider implements Registra
     }
 
     public void add(ItemStack key, String name) {
-        add(key.getDescriptionId(), name);
-    }
-
-    public void addEnchantment(Supplier<? extends Enchantment> key, String name) {
-        add(key.get(), name);
-    }
-
-    public void add(Enchantment key, String name) {
         add(key.getDescriptionId(), name);
     }
 

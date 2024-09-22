@@ -3,23 +3,22 @@ package com.tterrag.registrate.builders;
 import com.google.gson.JsonElement;
 import com.tterrag.registrate.AbstractRegistrate;
 import com.tterrag.registrate.builders.BlockEntityBuilder.BlockEntityFactory;
+import com.tterrag.registrate.fabric.DeferredHolder;
 import com.tterrag.registrate.fabric.EnvExecutor;
-import com.tterrag.registrate.fabric.RegistryObject;
 import com.tterrag.registrate.providers.*;
 import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import com.tterrag.registrate.providers.loot.RegistrateLootTableProvider.LootType;
+import com.tterrag.registrate.util.RegistrateDistExecutor;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.entry.RegistryEntry;
 import com.tterrag.registrate.util.nullness.*;
-import io.github.fabricators_of_create.porting_lib.models.generators.block.BlockStateProvider;
+import io.github.fabricators_of_create.porting_lib.models.generators.BlockStateProvider;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -313,33 +312,6 @@ public class BlockBuilder<T extends Block, P> extends AbstractBuilder<Block, T, 
      */
     public BlockBuilder<T, P> recipe(NonNullBiConsumer<DataGenContext<Block, T>, RegistrateRecipeProvider> cons) {
         return setData(ProviderType.RECIPE, cons);
-    }
-
-    @Nullable
-    private NonNullSupplier<Supplier<IClientBlockExtensions>> clientExtension;
-
-    /**
-     * Register a client extension for this block. The {@link IClientBlockExtensions} instance can be shared across many items.
-     *
-     * @param clientExtension
-     *            The client extension to register for this block
-     * @return this {@link BlockBuilder}
-     */
-    public BlockBuilder<T, P> clientExtension(NonNullSupplier<Supplier<IClientBlockExtensions>> clientExtension) {
-        if (this.clientExtension == null) {
-            RegistrateDistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> this::registerClientExtension);
-        }
-        this.clientExtension = clientExtension;
-        return this;
-    }
-
-    protected void registerClientExtension() {
-        OneTimeEventReceiver.addModListener(getOwner(), RegisterClientExtensionsEvent.class, e -> {
-            NonNullSupplier<Supplier<IClientBlockExtensions>> clientExtension = this.clientExtension;
-            if (clientExtension != null) {
-                e.registerBlock(clientExtension.get().get(), getEntry());
-            }
-        });
     }
 
     /**

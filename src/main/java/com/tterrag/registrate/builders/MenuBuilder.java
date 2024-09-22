@@ -1,8 +1,8 @@
 package com.tterrag.registrate.builders;
 
 import com.tterrag.registrate.AbstractRegistrate;
+import com.tterrag.registrate.fabric.DeferredHolder;
 import com.tterrag.registrate.fabric.EnvExecutor;
-import com.tterrag.registrate.fabric.RegistryObject;
 import com.tterrag.registrate.util.entry.MenuEntry;
 import com.tterrag.registrate.util.entry.RegistryEntry;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
@@ -12,9 +12,7 @@ import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;

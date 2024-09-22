@@ -3,8 +3,8 @@ package com.tterrag.registrate.builders;
 import java.util.function.Supplier;
 
 import com.tterrag.registrate.AbstractRegistrate;
+import com.tterrag.registrate.fabric.DeferredHolder;
 import com.tterrag.registrate.fabric.EnvExecutor;
-import com.tterrag.registrate.fabric.RegistryObject;
 import com.tterrag.registrate.mixin.accessor.SpawnPlacementsAccessor;
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.ProviderType;
@@ -169,7 +169,7 @@ public class EntityBuilder<T extends Entity, P> extends AbstractBuilder<EntityTy
      *             When called more than once
      */
     @SuppressWarnings("unchecked")
-    public EntityBuilder<T, P> spawnPlacement(SpawnPlacementType type, Heightmap.Types heightmap, SpawnPredicate<T> predicate, RegisterSpawnPlacementsEvent.Operation operation) {
+    public EntityBuilder<T, P> spawnPlacement(SpawnPlacementType type, Heightmap.Types heightmap, SpawnPredicate<T> predicate) {
         if (spawnConfigured) {
             throw new IllegalStateException("Cannot configure spawn placement more than once");
         }
@@ -223,8 +223,7 @@ public class EntityBuilder<T extends Entity, P> extends AbstractBuilder<EntityTy
     @SuppressWarnings({"unchecked" })
     @Deprecated
     public ItemBuilder<? extends SpawnEggItem, EntityBuilder<T, P>> spawnEgg(int primaryColor, int secondaryColor) {
-        var sup = asSupplier();
-        return getOwner().item(this, getName() + "_spawn_egg", p -> new DeferredSpawnEggItem((Supplier<EntityType<? extends Mob>>) (Supplier) sup, primaryColor, secondaryColor, p)).tab(CreativeModeTabs.SPAWN_EGGS)
+        return getOwner().item(this, getName() + "_spawn_egg", p -> new SpawnEggItem((EntityType<? extends Mob>) get().get(), primaryColor, secondaryColor, p)).tab(CreativeModeTabs.SPAWN_EGGS)
                 .model((ctx, prov) -> prov.withExistingParent(ctx.getName(), ResourceLocation.withDefaultNamespace("item/template_spawn_egg")));
     }
 

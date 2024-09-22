@@ -7,9 +7,9 @@ import javax.annotation.processing.Generated;
 import com.tterrag.registrate.AbstractRegistrate;
 
 import net.minecraft.core.HolderLookup;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricBlockLootTableProvider;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.loot.BlockLootSubProvider;
+import net.minecraft.data.loot.packs.VanillaBlockLoot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
@@ -20,11 +20,8 @@ import net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
-import javax.annotation.Generated;
 
 public class RegistrateBlockLootTables extends VanillaBlockLoot implements RegistrateLootTables {
     private final AbstractRegistrate<?> parent;
@@ -39,11 +36,6 @@ public class RegistrateBlockLootTables extends VanillaBlockLoot implements Regis
     @Override
     public void generate() {
         callback.accept(this);
-    }
-
-    @Override
-    protected Iterable<Block> getKnownBlocks() {
-        return parent.getAll(Registries.BLOCK).stream().map(Supplier::get).collect(Collectors.toList());
     }
 
     public HolderLookup.Provider getRegistries() {

@@ -8,6 +8,7 @@ import com.tterrag.registrate.util.nullness.FieldsAreNonnullByDefault;
 import com.tterrag.registrate.util.nullness.NonNullBiFunction;
 import com.tterrag.registrate.util.nullness.NonNullFunction;
 import com.tterrag.registrate.util.nullness.NonNullUnaryOperator;
+import io.github.fabricators_of_create.porting_lib.data.ExistingFileHelper;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
@@ -18,6 +19,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
 
 import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
@@ -38,7 +41,6 @@ public interface ProviderType<T extends RegistrateProvider> {
 
     // SERVER DATA
     ProviderType<RegistrateDatapackProvider> DYNAMIC = registerServerData("dynamic", RegistrateDatapackProvider::new);
-    ProviderType<RegistrateDataMapProvider> DATA_MAP = registerServerData("data_map", RegistrateDataMapProvider::new);
     ProviderType<RegistrateRecipeProvider> RECIPE = registerServerData("recipe", RegistrateRecipeProvider::new);
     ProviderType<RegistrateAdvancementProvider> ADVANCEMENT = registerServerData("advancement", RegistrateAdvancementProvider::new);
     ProviderType<RegistrateLootTableProvider> LOOT = registerServerData("loot", RegistrateLootTableProvider::new);

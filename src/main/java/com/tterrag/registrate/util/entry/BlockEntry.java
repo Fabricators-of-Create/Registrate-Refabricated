@@ -2,10 +2,9 @@ package com.tterrag.registrate.util.entry;
 
 import com.tterrag.registrate.AbstractRegistrate;
 
+import com.tterrag.registrate.fabric.DeferredHolder;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-
-import com.tterrag.registrate.fabric.RegistryObject;
 
 public class BlockEntry<T extends Block> extends ItemProviderEntry<Block, T> {
 

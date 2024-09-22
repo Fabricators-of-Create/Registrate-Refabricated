@@ -3,8 +3,7 @@ package com.tterrag.registrate.builders;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.tterrag.registrate.AbstractRegistrate;
-import com.tterrag.registrate.fabric.RegistryObject;
-import com.tterrag.registrate.fabric.RegistryUtil;
+import com.tterrag.registrate.fabric.DeferredHolder;
 import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.providers.RegistrateLangProvider;
 import com.tterrag.registrate.providers.RegistrateTagsProvider;
@@ -22,10 +21,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagEntry;
 import net.minecraft.tags.TagKey;
-
-import java.util.Arrays;
 
 import java.util.Arrays;
 
@@ -104,7 +100,7 @@ public abstract class AbstractBuilder<R, T extends R, P, S extends AbstractBuild
             setData(type, (ctx, prov) -> tagsByType.get(type).stream()
                     .map(t -> (TagKey<R>) t)
                     .map(prov::addTag)
-                    .forEach(b -> b.add(asTag())));
+                    .forEach(b -> b.add(ResourceKey.create(getRegistryKey(), ResourceLocation.fromNamespaceAndPath(getOwner().getModid(), getName())))));
         }
         tagsByType.putAll(type, Arrays.asList(tags));
         return (S) this;
@@ -117,12 +113,6 @@ public abstract class AbstractBuilder<R, T extends R, P, S extends AbstractBuild
     public S asOptional(){
         isOptional = true;
         return (S) this;
-    }
-
-    protected TagEntry asTag() {
-        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(getOwner().getModid(), getName());
-        if (isOptional) return TagEntry.optionalElement(id);
-        return TagEntry.element(id);
     }
 
     /**

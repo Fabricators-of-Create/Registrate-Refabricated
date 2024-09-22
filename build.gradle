@@ -35,7 +35,7 @@ dependencies {
     modImplementation("net.fabricmc.fabric-api:fabric-api:${project.fabric_version}")
     modApi(include(fabricApi.module("fabric-data-generation-api-v1", project.fabric_version))) // include datagen api
     modApi(include("io.github.fabricators_of_create.Porting-Lib:tags:${project.porting_lib_version}")) { exclude(group: "io.vram") }
-    //modApi(include("io.github.fabricators_of_create.Porting-Lib:model_generators:${project.porting_lib_version}")) { exclude(group: "io.vram") }
+    modApi(include("io.github.fabricators_of_create.Porting-Lib:models:${project.porting_lib_version}")) { exclude(group: "io.vram") }
     modApi(include("io.github.fabricators_of_create.Porting-Lib:data:${project.porting_lib_version}")) { exclude(group: "io.vram") }
 
     compileOnly("org.projectlombok:lombok:1.18.22")

@@ -4,6 +4,7 @@ import com.google.common.collect.*;
 import com.tterrag.registrate.AbstractRegistrate;
 import com.tterrag.registrate.fabric.CustomValidationLootProvider;
 import com.tterrag.registrate.fabric.NonNullTriFunction;
+import com.tterrag.registrate.fabric.TriFunction;
 import com.tterrag.registrate.mixin.accessor.LootContextParamSetsAccessor;
 import com.tterrag.registrate.mixin.accessor.LootTableProviderAccessor;
 import com.tterrag.registrate.providers.ProviderType;
@@ -12,6 +13,7 @@ import com.tterrag.registrate.util.nullness.NonNullConsumer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+import net.minecraft.data.PackOutput;
 import org.jetbrains.annotations.NotNull;
 
 import lombok.Getter;
