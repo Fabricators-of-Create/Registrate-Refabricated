@@ -85,16 +85,6 @@ public class RegistrateBlockLootTables extends VanillaBlockLoot implements Regis
     @Generated(value = "com.tterrag.registrate.test.meta.UpdateBlockLootTables", date = "Tue, 18 Jun 2024 17:52:52 GMT")
     public LootTable.Builder createSingleItemTableWithSilkTouch(Block p_251449_, ItemLike p_248558_, NumberProvider p_250047_) { return super.createSingleItemTableWithSilkTouch(p_251449_, p_248558_, p_250047_); }
 
-    /** Generated override to expose protected method: {@link BlockLootSubProvider#createSilkTouchOnlyTable} */
-    @Override
-    @Generated(value = "com.tterrag.registrate.test.meta.UpdateBlockLootTables", date = "Tue, 18 Jun 2024 17:52:52 GMT")
-    public LootTable.Builder createSilkTouchOnlyTable(ItemLike p_252216_) { return super.createSilkTouchOnlyTable(p_252216_); }
-
-    /** Generated override to expose protected method: {@link BlockLootSubProvider#createPotFlowerItemTable} */
-    @Override
-    @Generated(value = "com.tterrag.registrate.test.meta.UpdateBlockLootTables", date = "Tue, 18 Jun 2024 17:52:52 GMT")
-    public LootTable.Builder createPotFlowerItemTable(ItemLike p_249395_) { return super.createPotFlowerItemTable(p_249395_); }
-
     /** Generated override to expose protected method: {@link BlockLootSubProvider#createSlabItemTable} */
     @Override
     @Generated(value = "com.tterrag.registrate.test.meta.UpdateBlockLootTables", date = "Tue, 18 Jun 2024 17:52:52 GMT")
