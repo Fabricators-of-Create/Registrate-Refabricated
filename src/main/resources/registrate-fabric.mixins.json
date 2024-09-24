@@ -5,10 +5,8 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "LootTableProviderMixin",
-    "accessor.FluidBlockAccessor",
     "accessor.LootContextParamSetsAccessor",
     "accessor.LootTableProviderAccessor",
-    "accessor.SpawnEggItemAccessor",
     "accessor.SpawnPlacementsAccessor"
   ],
   "client": [

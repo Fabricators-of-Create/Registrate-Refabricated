@@ -1,6 +1,8 @@
 package com.tterrag.registrate.providers.loot;
 
 import com.google.common.collect.*;
+import com.mojang.datafixers.util.Function4;
+import com.mojang.datafixers.util.Function5;
 import com.tterrag.registrate.AbstractRegistrate;
 import com.tterrag.registrate.fabric.CustomValidationLootProvider;
 import com.tterrag.registrate.fabric.NonNullTriFunction;
@@ -49,7 +51,7 @@ public class RegistrateLootTableProvider extends LootTableProvider implements Re
         T getLootCreator(HolderLookup.Provider provider, AbstractRegistrate<?> parent, Consumer<T> callback, FabricDataOutput output);
         LootContextParamSet getLootSet();
 
-        static <T extends RegistrateLootTables> LootType<T> register(String name, LootContextParamSet set, TriFunction<HolderLookup.Provider, AbstractRegistrate, Consumer<T>, T> factory) {
+        static <T extends RegistrateLootTables> LootType<T> register(String name, LootContextParamSet set, Function4<HolderLookup.Provider, AbstractRegistrate<?>, Consumer<T>, FabricDataOutput, T> factory) {
             LootType<T> type = new LootType<T>() {
                 @Override
                 public T getLootCreator(HolderLookup.Provider provider, AbstractRegistrate<?> parent, Consumer<T> callback, FabricDataOutput output) {
@@ -77,7 +79,7 @@ public class RegistrateLootTableProvider extends LootTableProvider implements Re
     private CompletableFuture<HolderLookup.Provider> provider;
 
     public RegistrateLootTableProvider(AbstractRegistrate<?> parent, PackOutput packOutput, CompletableFuture<HolderLookup.Provider> provider) {
-        super(packOutput, Set.of(), VanillaLootTableProvider.create(packOutput, provider).getTables(), provider);
+        super(packOutput, Set.of(), ((LootTableProviderAccessor) VanillaLootTableProvider.create(packOutput, provider)).getSubProviders(), provider);
         this.parent = parent;
         this.provider = provider;
     }

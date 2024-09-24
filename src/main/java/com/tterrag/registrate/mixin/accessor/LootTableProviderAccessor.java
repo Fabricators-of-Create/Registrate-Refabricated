@@ -11,7 +11,6 @@ import net.minecraft.data.loot.LootTableProvider.SubProviderEntry;
 
 @Mixin(LootTableProvider.class)
 public interface LootTableProviderAccessor {
-    @Mutable
     @Accessor
-    void setSubProviders(List<SubProviderEntry> entries);
+    List<SubProviderEntry> getSubProviders();
 }

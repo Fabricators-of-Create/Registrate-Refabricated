@@ -28,8 +28,8 @@ public class RegistrateEntityLootTables extends SimpleFabricLootTableProvider im
 
     private final Map<ResourceKey<LootTable>, Builder> entries = new HashMap<>();
 
-    public RegistrateEntityLootTables(AbstractRegistrate<?> parent, FabricDataOutput output, CompletableFuture<HolderLookup.Provider> provider, Consumer<RegistrateEntityLootTables> callback) {
-        super(output, provider, LootContextParamSets.ENTITY);
+    public RegistrateEntityLootTables(HolderLookup.Provider provider, AbstractRegistrate<?> parent, Consumer<RegistrateEntityLootTables> callback, FabricDataOutput output) {
+        super(output, CompletableFuture.supplyAsync(() -> provider), LootContextParamSets.ENTITY);
         this.parent = parent;
         this.callback = callback;
     }

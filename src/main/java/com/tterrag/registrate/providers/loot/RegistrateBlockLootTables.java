@@ -1,11 +1,13 @@
 package com.tterrag.registrate.providers.loot;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import javax.annotation.processing.Generated;
 
 import com.tterrag.registrate.AbstractRegistrate;
 
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.loot.BlockLootSubProvider;
@@ -27,7 +29,7 @@ public class RegistrateBlockLootTables extends VanillaBlockLoot implements Regis
     private final AbstractRegistrate<?> parent;
     private final Consumer<RegistrateBlockLootTables> callback;
 
-    public RegistrateBlockLootTables(HolderLookup.Provider provider, AbstractRegistrate<?> parent, Consumer<RegistrateBlockLootTables> callback) {
+    public RegistrateBlockLootTables(HolderLookup.Provider provider, AbstractRegistrate<?> parent, Consumer<RegistrateBlockLootTables> callback, FabricDataOutput output) {
         super(provider);
         this.parent = parent;
         this.callback = callback;
