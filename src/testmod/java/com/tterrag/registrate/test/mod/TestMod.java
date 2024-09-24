@@ -249,7 +249,7 @@ public class TestMod implements ModInitializer, DataGeneratorEntrypoint {
                             .setRolls(ConstantValue.exactly(1))
                             .add(LootItem.lootTableItem(Items.DIAMOND)
                                     .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 3)))
-                                    .apply(EnchantedCountIncreaseFunction.lootingMultiplier(prov.reg(), UniformGenerator.between(0, 2)))))))
+                                    .apply(EnchantedCountIncreaseFunction.lootingMultiplier(prov.getProvider(), UniformGenerator.between(0, 2)))))))
             .tag(EntityTypeTags.RAIDERS)
             .register();
 

@@ -37,7 +37,7 @@ public class MenuEntry<T extends AbstractContainerMenu> extends RegistryEntry<Me
         open(player, displayName, asProvider());
     }
 
-    public void open(ServerPlayer player, Component displayName, Consumer<RegistryFriendlyByteBuf> extraData) {
+    public void open(ServerPlayer player, Component displayName, Consumer<Object> extraData) {
         open(player, displayName, asProvider(), extraData);
     }
 
@@ -45,11 +45,13 @@ public class MenuEntry<T extends AbstractContainerMenu> extends RegistryEntry<Me
         player.openMenu(new SimpleMenuProvider(provider, displayName));
     }
 
-    public void open(ServerPlayer player, Component displayName, MenuConstructor provider, Consumer<RegistryFriendlyByteBuf> extraData) {
-        player.openMenu(new ExtendedScreenHandlerFactory() {
+    public void open(ServerPlayer player, Component displayName, MenuConstructor provider, Consumer<Object> extraData) {
+        player.openMenu(new ExtendedScreenHandlerFactory<>() {
+            // FIXME
             @Override
-            public void writeScreenOpeningData(ServerPlayer serverPlayer, FriendlyByteBuf friendlyByteBuf) {
-                extraData.accept(friendlyByteBuf);
+            public Object getScreenOpeningData(ServerPlayer player) {
+                extraData.accept(null);
+                return null;
             }
 
             @Override
