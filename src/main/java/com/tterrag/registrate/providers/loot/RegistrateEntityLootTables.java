@@ -2,6 +2,7 @@ package com.tterrag.registrate.providers.loot;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -10,6 +11,8 @@ import com.tterrag.registrate.AbstractRegistrate;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.SimpleFabricLootTableProvider;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.resources.ResourceKey;
 import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.resources.ResourceLocation;
@@ -23,16 +26,16 @@ public class RegistrateEntityLootTables extends SimpleFabricLootTableProvider im
     private final AbstractRegistrate<?> parent;
     private final Consumer<RegistrateEntityLootTables> callback;
 
-    private final Map<ResourceLocation, Builder> entries = new HashMap<>();
+    private final Map<ResourceKey<LootTable>, Builder> entries = new HashMap<>();
 
-    public RegistrateEntityLootTables(AbstractRegistrate<?> parent, Consumer<RegistrateEntityLootTables> callback, FabricDataOutput output) {
-        super(output, LootContextParamSets.ENTITY);
+    public RegistrateEntityLootTables(AbstractRegistrate<?> parent, FabricDataOutput output, CompletableFuture<HolderLookup.Provider> provider, Consumer<RegistrateEntityLootTables> callback) {
+        super(output, provider, LootContextParamSets.ENTITY);
         this.parent = parent;
         this.callback = callback;
     }
 
     @Override
-    public void generate(@NotNull BiConsumer<ResourceLocation, Builder> consumer) {
+    public void generate(@NotNull BiConsumer<ResourceKey<LootTable>, Builder> consumer) {
         callback.accept(this);
         entries.forEach(consumer);
     }
@@ -41,7 +44,7 @@ public class RegistrateEntityLootTables extends SimpleFabricLootTableProvider im
         entries.put(type.getDefaultLootTable(), table);
     }
 
-    public void add(ResourceLocation id, LootTable.Builder table) {
+    public void add(ResourceKey<LootTable> id, LootTable.Builder table) {
         entries.put(id, table);
     }
 

@@ -90,10 +90,6 @@ public class RegistrateAdvancementProvider implements RegistrateProvider, Consum
 
     @Override
     public void accept(@Nullable AdvancementHolder holder) {
-        withConditions(holder, List.of());
-    }
-
-    public void withConditions(@Nullable AdvancementHolder holder, List<ICondition> conditions) {
         this.registriesLookup.thenAccept(lookup -> {
             CachedOutput cache = this.cache;
             if (cache == null) {
@@ -103,11 +99,8 @@ public class RegistrateAdvancementProvider implements RegistrateProvider, Consum
             Path path = getPath(this.packOutput.getOutputFolder(), holder);
             if (!seenAdvancements.add(holder.id())) {
                 throw new IllegalStateException("Duplicate advancement " + holder.id());
-            } else if (conditions.isEmpty()) {
-                advancementsToSave.add(DataProvider.saveStable(cache, lookup, Advancement.CODEC, holder.value(), path));
             } else {
-                advancementsToSave.add(DataProvider.saveStable(cache, lookup, Advancement.CONDITIONAL_CODEC,
-                        Optional.of(new WithConditions<>(conditions, holder.value())), path));
+                advancementsToSave.add(DataProvider.saveStable(cache, lookup, Advancement.CODEC, holder.value(), path));
             }
         });
     }

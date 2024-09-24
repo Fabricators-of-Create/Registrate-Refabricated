@@ -2,6 +2,7 @@ package com.tterrag.registrate.providers;
 
 import com.tterrag.registrate.AbstractRegistrate;
 import io.github.fabricators_of_create.porting_lib.data.ExistingFileHelper;
+import net.fabricmc.api.EnvType;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
@@ -19,20 +20,20 @@ public final class RegistrateGenericProvider implements RegistrateProvider
     private final PackOutput output;
     private final CompletableFuture<HolderLookup.Provider> registries;
     private final ExistingFileHelper existingFileHelper;
-    private final LogicalSide side;
+    private final EnvType side;
     private final ProviderType<RegistrateGenericProvider> providerType;
     private final List<Generator> generators = Lists.newArrayList();
 
     @ApiStatus.Internal
-    RegistrateGenericProvider(AbstractRegistrate<?> registrate, GatherDataEvent event, LogicalSide side, ProviderType<RegistrateGenericProvider> providerType)
+    RegistrateGenericProvider(AbstractRegistrate<?> registrate, RegistrateDataProvider.DataInfo info, EnvType side, ProviderType<RegistrateGenericProvider> providerType)
     {
         this.registrate = registrate;
         this.side = side;
         this.providerType = providerType;
 
-        output = event.getGenerator().getPackOutput();
-        registries = event.getLookupProvider();
-        existingFileHelper = event.getExistingFileHelper();
+        output = info.output();
+        registries = info.registriesLookup();
+        existingFileHelper = info.helper();
     }
 
     public RegistrateGenericProvider add(Generator generator)
@@ -42,7 +43,7 @@ public final class RegistrateGenericProvider implements RegistrateProvider
     }
 
     @Override
-    public LogicalSide getSide()
+    public EnvType getSide()
     {
         return side;
     }

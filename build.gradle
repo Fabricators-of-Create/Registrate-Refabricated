@@ -2,7 +2,7 @@
 //file:noinspection GroovyAccessibility
 plugins {
     id "fabric-loom" version "1.6.+"
-    id "io.freefair.lombok" version "8.6"
+    id "io.freefair.lombok" version "8.10"
     id "maven-publish"
 }
 
@@ -38,7 +38,7 @@ dependencies {
     modApi(include("io.github.fabricators_of_create.Porting-Lib:models:${project.porting_lib_version}")) { exclude(group: "io.vram") }
     modApi(include("io.github.fabricators_of_create.Porting-Lib:data:${project.porting_lib_version}")) { exclude(group: "io.vram") }
 
-    compileOnly("org.projectlombok:lombok:1.18.22")
+    compileOnly("org.projectlombok:lombok:1.18.34")
 
     implementation(include("com.google.code.findbugs:jsr305:3.0.2"))
     implementation("javax.annotation:javax.annotation-api:1.3.2")

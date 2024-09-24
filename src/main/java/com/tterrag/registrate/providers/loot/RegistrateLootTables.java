@@ -9,5 +9,5 @@ import net.minecraft.world.level.storage.loot.ValidationContext;
 import java.util.Map;
 
 public interface RegistrateLootTables extends LootTableSubProvider {
-    default void validate(WritableRegistry<LootTable> writableRegistry, ValidationContext validationContext) {}
+    default void validate(Map<ResourceLocation, LootTable> tables, ValidationContext context) {}
 }
