@@ -4,9 +4,7 @@ import java.util.function.Consumer;
 
 import com.tterrag.registrate.AbstractRegistrate;
 
-import com.tterrag.registrate.fabric.DeferredHolder;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import io.github.fabricators_of_create.porting_lib.util.DeferredHolder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleMenuProvider;

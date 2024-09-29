@@ -4,7 +4,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 import com.tterrag.registrate.AbstractRegistrate;
-import com.tterrag.registrate.fabric.DeferredHolder;
+import io.github.fabricators_of_create.porting_lib.util.DeferredHolder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;

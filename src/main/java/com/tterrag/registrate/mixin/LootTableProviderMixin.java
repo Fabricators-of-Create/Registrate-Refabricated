@@ -2,12 +2,12 @@ package com.tterrag.registrate.mixin;
 
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import com.llamalad7.mixinextras.injector.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.tterrag.registrate.fabric.CustomValidationLootProvider;
 import org.spongepowered.asm.mixin.Mixin;
@@ -21,7 +21,7 @@ import net.minecraft.world.level.storage.loot.ValidationContext;
 @Mixin(LootTableProvider.class)
 public class LootTableProviderMixin {
     @ModifyExpressionValue(
-            method = "run",
+            method = "run(Lnet/minecraft/data/CachedOutput;Lnet/minecraft/core/HolderLookup$Provider;)Ljava/util/concurrent/CompletableFuture;",
             at = @At(
                     value = "INVOKE",
                     target = "Ljava/util/Set;iterator()Ljava/util/Iterator;" // Sets.difference
@@ -38,13 +38,13 @@ public class LootTableProviderMixin {
     }
 
     @WrapWithCondition(
-            method = "run",
+            method = "run(Lnet/minecraft/data/CachedOutput;Lnet/minecraft/core/HolderLookup$Provider;)Ljava/util/concurrent/CompletableFuture;",
                 at = @At(
                         value = "INVOKE",
-                        target = "Ljava/util/Map;forEach(Ljava/util/function/BiConsumer;)V"
+                        target = "Ljava/util/stream/Stream;forEach(Ljava/util/function/Consumer;)V"
                 )
     )
-    private boolean preventOtherValidation(Map<ResourceLocation, LootTable> tables, BiConsumer<ResourceLocation, LootTable> consumer) {
+    private <T> boolean preventOtherValidation(Stream<T> instance, Consumer<? super T> consumer) {
         return !(this instanceof CustomValidationLootProvider);
     }
 }

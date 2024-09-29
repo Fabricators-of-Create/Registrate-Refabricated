@@ -5,13 +5,11 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 import com.tterrag.registrate.AbstractRegistrate;
-import com.tterrag.registrate.fabric.DeferredHolder;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
 
-import lombok.experimental.Delegate;
+import io.github.fabricators_of_create.porting_lib.util.DeferredHolder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Wraps a {@link DeferredHolder}, providing a cleaner API with null-safe access, and registrate-specific extensions such as {@link #getSibling(ResourceKey)}.

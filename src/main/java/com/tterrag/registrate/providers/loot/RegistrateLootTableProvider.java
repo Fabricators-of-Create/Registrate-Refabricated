@@ -2,34 +2,24 @@ package com.tterrag.registrate.providers.loot;
 
 import com.google.common.collect.*;
 import com.mojang.datafixers.util.Function4;
-import com.mojang.datafixers.util.Function5;
 import com.tterrag.registrate.AbstractRegistrate;
 import com.tterrag.registrate.fabric.CustomValidationLootProvider;
-import com.tterrag.registrate.fabric.NonNullTriFunction;
-import com.tterrag.registrate.fabric.TriFunction;
 import com.tterrag.registrate.mixin.accessor.LootContextParamSetsAccessor;
 import com.tterrag.registrate.mixin.accessor.LootTableProviderAccessor;
 import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.providers.RegistrateProvider;
 import com.tterrag.registrate.util.nullness.NonNullConsumer;
 import net.fabricmc.api.EnvType;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.minecraft.data.PackOutput;
-import org.jetbrains.annotations.NotNull;
 
-import lombok.Getter;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.WritableRegistry;
-import net.minecraft.data.CachedOutput;
-import net.minecraft.data.CachedOutput;
 import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.data.loot.LootTableSubProvider;
 import net.minecraft.data.loot.packs.VanillaLootTableProvider;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.ValidationContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
@@ -39,7 +29,6 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public class RegistrateLootTableProvider extends LootTableProvider implements RegistrateProvider, CustomValidationLootProvider {
 

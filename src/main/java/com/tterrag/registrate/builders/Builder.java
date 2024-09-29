@@ -205,7 +205,7 @@ public interface Builder<R, T extends R, P, S extends Builder<R, T, P, S>> exten
     }
 
     /**
-     * Register the entry and return the parent object. The {@link com.tterrag.registrate.fabric.DeferredHolder} will be created but not returned. It can be retrieved later with {@link AbstractRegistrate#get(ResourceKey)} or
+     * Register the entry and return the parent object. The {@link io.github.fabricators_of_create.porting_lib.util.DeferredHolder} will be created but not returned. It can be retrieved later with {@link AbstractRegistrate#get(ResourceKey)} or
      * {@link AbstractRegistrate#get(String, ResourceKey)}.
      * 
      * @return the parent object

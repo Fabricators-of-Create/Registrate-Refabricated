@@ -1,8 +1,8 @@
 package com.tterrag.registrate.util.entry;
 
 import com.tterrag.registrate.AbstractRegistrate;
-import com.tterrag.registrate.fabric.DeferredHolder;
 
+import io.github.fabricators_of_create.porting_lib.util.DeferredHolder;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
