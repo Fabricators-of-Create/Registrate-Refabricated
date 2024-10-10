@@ -21,9 +21,6 @@
   "entrypoints": {
     "client": [
       "com.tterrag.registrate.fabric.ClientInit"
-    ],
-    "preLaunch": [
-      "com.llamalad7.mixinextras.MixinExtrasBootstrap::init"
     ]
   },
   "mixins": [
